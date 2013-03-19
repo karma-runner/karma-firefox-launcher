@@ -18,7 +18,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, logger) {
     var command = this._getCommand();
     var errorOutput = '';
 
-    var p = spawn(command, ['-CreateProfile', 'testacular-' + id + ' ' + self._tempDir, '-no-remote']);
+    var p = spawn(command, ['-CreateProfile', 'karma-' + id + ' ' + self._tempDir, '-no-remote']);
 
     p.stderr.on('data', function(data) {
       errorOutput += data.toString();
