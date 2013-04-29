@@ -16,24 +16,9 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, logger) {
   this._start = function(url) {
     var self = this;
     var command = this._getCommand();
-    var errorOutput = '';
 
-    var p = spawn(command, ['-CreateProfile', 'karma-' + id + ' ' + self._tempDir, '-no-remote']);
-
-    p.stderr.on('data', function(data) {
-      errorOutput += data.toString();
-    });
-
-    p.on('close', function() {
-      var match = /at\s\'(.*)[\/\\]prefs\.js\'/.exec(errorOutput);
-
-      if (match) {
-        self._tempDir = match[1];
-      }
-
-      fs.createWriteStream(self._tempDir + '/prefs.js', {flags: 'a'}).write(PREFS);
-      self._execCommand(command, [url, '-profile', self._tempDir, '-no-remote']);
-    });
+    fs.createWriteStream(self._tempDir + '/prefs.js', {flags: 'a'}).write(PREFS);
+    self._execCommand(command, [url, '-profile', self._tempDir, '-no-remote']);
   };
 };
 
@@ -54,7 +39,7 @@ FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
 
 var FirefoxAuroraBrowser = function(id, baseBrowserDecorator, logger) {
   FirefoxBrowser.call(this, id, baseBrowserDecorator, logger);
-}
+};
 
 FirefoxAuroraBrowser.prototype = {
   name: 'FirefoxAurora',
@@ -71,7 +56,7 @@ FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
 
 var FirefoxNightlyBrowser = function(id, baseBrowserDecorator, logger) {
   FirefoxBrowser.call(this, id, baseBrowserDecorator, logger);
-}
+};
 
 FirefoxNightlyBrowser.prototype = {
   name: 'FirefoxNightly',
