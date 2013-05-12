@@ -1,6 +1,6 @@
 {
   "name": "karma-firefox-launcher",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A Karma plugin. Launcher for Firefox.",
   "main": "index.js",
   "scripts": {
