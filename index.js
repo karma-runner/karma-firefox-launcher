@@ -29,7 +29,7 @@ FirefoxBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/Firefox.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Mozilla Firefox\\firefox.exe'
+    win32: windowsFirefoxPath('\\Mozilla Firefox\\firefox.exe')
   },
   ENV_CMD: 'FIREFOX_BIN'
 };
@@ -46,13 +46,12 @@ FirefoxAuroraBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxAurora.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Aurora\\firefox.exe'
+    win32: windowsFirefoxPath('\\Aurora\\firefox.exe')
   },
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 };
 
 FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
-
 
 var FirefoxNightlyBrowser = function(id, baseBrowserDecorator, logger) {
   FirefoxBrowser.call(this, id, baseBrowserDecorator, logger);
@@ -64,13 +63,17 @@ FirefoxNightlyBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Nightly\\firefox.exe'
+    win32: windowsFirefoxPath('\\Nightly\\firefox.exe')
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 };
 
 FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
 
+function windowsFirefoxPath(firefoxExe) {
+	var programFiles = require('os').arch()==='x64' ? process.env['ProgramFiles(x86)'] : process.env.ProgramFiles;
+	return programFiles + firefoxExe;
+}
 
 // PUBLISH DI MODULE
 module.exports = {
