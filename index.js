@@ -1,6 +1,6 @@
 var fs = require('fs');
 var spawn = require('child_process').spawn;
-
+var os = require('os');
 
 var PREFS =
     'user_pref("browser.shell.checkDefaultBrowser", false);\n' +
@@ -70,8 +70,8 @@ FirefoxNightlyBrowser.prototype = {
 
 FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
 
-function windowsFirefoxPath(firefoxExe) {
-	var programFiles = require('os').arch()==='x64' ? process.env['ProgramFiles(x86)'] : process.env.ProgramFiles;
+var windowsFirefoxPath = function(firefoxExe) {
+	var programFiles = os.arch()==='x64' ? process.env['ProgramFiles(x86)'] : process.env.ProgramFiles;
 	return programFiles + firefoxExe;
 }
 
