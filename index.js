@@ -9,6 +9,27 @@ var PREFS =
     'user_pref("dom.max_script_run_time", 0);\n';
 
 
+// Return location of firefox.exe file for a given Firefox directory
+// (available: "Mozilla Firefox", "Aurora", "Nightly").
+var getFirefoxExe = function(firefoxDirName) {
+  if (process.platform !== 'win32') {
+    return null;
+  }
+
+  var prefix;
+  var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']];
+  var suffix = '\\'+ firefoxDirName + '\\firefox.exe';
+
+  for (var i = 0; i < prefixes.length; i++) {
+    prefix = prefixes[i];
+    if (fs.existsSync(prefix + suffix)) {
+      return prefix + suffix;
+    }
+  }
+
+  return 'C:\\Program Files' + suffix;
+}
+
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
 var FirefoxBrowser = function(id, baseBrowserDecorator, logger) {
   baseBrowserDecorator(this);
@@ -31,7 +52,7 @@ FirefoxBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/Firefox.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Mozilla Firefox\\firefox.exe'
+    win32: getFirefoxExe('Mozilla Firefox')
   },
   ENV_CMD: 'FIREFOX_BIN'
 };
@@ -48,7 +69,7 @@ FirefoxAuroraBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxAurora.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Aurora\\firefox.exe'
+    win32: getFirefoxExe('Aurora')
   },
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 };
@@ -66,7 +87,7 @@ FirefoxNightlyBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Nightly\\firefox.exe'
+    win32: getFirefoxExe('Nightly')
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 };
