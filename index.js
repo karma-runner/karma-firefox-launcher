@@ -17,7 +17,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, logger) {
     var self = this;
     var command = this._getCommand();
 
-    fs.createWriteStream(self._tempDir + '/prefs.js', {flags: 'a'}).write(PREFS);
+    fs.writeFileSync(self._tempDir + '/prefs.js', PREFS);
     self._execCommand(command, [url, '-profile', self._tempDir, '-no-remote']);
   };
 };
