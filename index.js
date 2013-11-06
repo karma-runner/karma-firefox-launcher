@@ -4,7 +4,8 @@ var spawn = require('child_process').spawn;
 
 var PREFS =
     'user_pref("browser.shell.checkDefaultBrowser", false);\n' +
-    'user_pref("browser.bookmarks.restore_default_bookmarks", false);\n';
+    'user_pref("browser.bookmarks.restore_default_bookmarks", false);\n' +
+    'user_pref("dom.disable_open_during_load", false);\n';
 
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
