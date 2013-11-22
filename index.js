@@ -31,7 +31,7 @@ FirefoxBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/Firefox.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Mozilla Firefox\\firefox.exe'
+    win32: process.env['ProgramFiles(x86)'] + '\\Mozilla Firefox\\firefox.exe'
   },
   ENV_CMD: 'FIREFOX_BIN'
 };
@@ -48,7 +48,7 @@ FirefoxAuroraBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxAurora.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Aurora\\firefox.exe'
+    win32: process.env['ProgramFiles(x86)'] + '\\Aurora\\firefox.exe'
   },
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 };
@@ -66,7 +66,7 @@ FirefoxNightlyBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Nightly\\firefox.exe'
+    win32: process.env['ProgramFiles(x86)'] + '\\Nightly\\firefox.exe'
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 };
