@@ -1,6 +1,17 @@
 var fs = require('fs');
 var spawn = require('child_process').spawn;
 
+var winAppPath = function(appPath) {
+  var appRoot, path;
+  if ((appRoot = process.env.ProgramFiles) && (fs.existsSync(path = appRoot + '\\' + appPath))) {
+    return path;
+  };
+  if ((appRoot = process.env['ProgramFiles(x86)']) && (fs.existsSync(path = appRoot + '\\' + appPath))) {
+    return path;
+  };
+  return (process.env.ProgramFiles || 'C:\\Program Files') + '\\' + appPath;
+};
+
 
 var PREFS =
     'user_pref("browser.shell.checkDefaultBrowser", false);\n' +
@@ -24,14 +35,13 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, logger) {
   };
 };
 
-
 FirefoxBrowser.prototype = {
   name: 'Firefox',
 
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/Firefox.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Mozilla Firefox\\firefox.exe'
+    win32: winAppPath('Mozilla Firefox\\firefox.exe')
   },
   ENV_CMD: 'FIREFOX_BIN'
 };
@@ -48,7 +58,7 @@ FirefoxAuroraBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxAurora.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Aurora\\firefox.exe'
+    win32: winAppPath('Aurora\\firefox.exe')
   },
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 };
@@ -66,7 +76,7 @@ FirefoxNightlyBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     darwin: '/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin',
-    win32: process.env.ProgramFiles + '\\Nightly\\firefox.exe'
+    win32: winAppPath('Nightly\\firefox.exe')
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 };
