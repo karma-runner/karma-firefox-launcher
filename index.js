@@ -16,6 +16,7 @@ var getFirefoxExe = function(firefoxDirName) {
     return null;
   }
 
+
   var prefix;
   var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']];
   var suffix = '\\'+ firefoxDirName + '\\firefox.exe';
@@ -31,16 +32,26 @@ var getFirefoxExe = function(firefoxDirName) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
-var FirefoxBrowser = function(id, baseBrowserDecorator, logger) {
+var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
   baseBrowserDecorator(this);
 
   var log = logger.create('launcher');
+  this._getPrefs = function(prefs) {
+    if (typeof prefs !== 'object') {
+      return PREFS;
+    }
+    var result = PREFS;
+    for (var key in prefs) {
+      result += 'user_pref("' + key + '", ' + JSON.stringify(prefs[key]) + ');\n';
+    }
+    return result;
+  }
 
   this._start = function(url) {
     var self = this;
     var command = this._getCommand();
 
-    fs.writeFileSync(self._tempDir + '/prefs.js', PREFS);
+    fs.writeFileSync(self._tempDir + '/prefs.js', this._getPrefs(args.prefs));
     self._execCommand(command, [url, '-profile', self._tempDir, '-no-remote']);
   };
 };
@@ -57,7 +68,7 @@ FirefoxBrowser.prototype = {
   ENV_CMD: 'FIREFOX_BIN'
 };
 
-FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
+FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
 
 
 var FirefoxAuroraBrowser = function(id, baseBrowserDecorator, logger) {
@@ -74,7 +85,7 @@ FirefoxAuroraBrowser.prototype = {
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 };
 
-FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
+FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
 
 
 var FirefoxNightlyBrowser = function(id, baseBrowserDecorator, logger) {
@@ -92,7 +103,7 @@ FirefoxNightlyBrowser.prototype = {
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 };
 
-FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'logger'];
+FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
 
 
 // PUBLISH DI MODULE
