@@ -71,8 +71,8 @@ FirefoxBrowser.prototype = {
 FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
 
 
-var FirefoxAuroraBrowser = function(id, baseBrowserDecorator, logger) {
-  FirefoxBrowser.call(this, id, baseBrowserDecorator, logger);
+var FirefoxAuroraBrowser = function() {
+  FirefoxBrowser.apply(this, arguments);
 };
 
 FirefoxAuroraBrowser.prototype = {
@@ -88,8 +88,8 @@ FirefoxAuroraBrowser.prototype = {
 FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
 
 
-var FirefoxNightlyBrowser = function(id, baseBrowserDecorator, logger) {
-  FirefoxBrowser.call(this, id, baseBrowserDecorator, logger);
+var FirefoxNightlyBrowser = function() {
+  FirefoxBrowser.apply(this, arguments);
 };
 
 FirefoxNightlyBrowser.prototype = {
