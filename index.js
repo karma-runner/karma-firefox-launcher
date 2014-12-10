@@ -71,6 +71,23 @@ FirefoxBrowser.prototype = {
 FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
 
 
+var FirefoxDeveloperBrowser = function() {
+  FirefoxBrowser.apply(this, arguments);
+};
+
+FirefoxDeveloperBrowser.prototype = {
+  name: 'FirefoxDeveloper',
+  DEFAULT_CMD: {
+    linux: 'firefox',
+    darwin: '/Applications/FirefoxDeveloper.app/Contents/MacOS/firefox-bin',
+    win32: getFirefoxExe('Firefox Developer Edition')
+  },
+  ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
+};
+
+FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
+
+
 var FirefoxAuroraBrowser = function() {
   FirefoxBrowser.apply(this, arguments);
 };
@@ -109,6 +126,7 @@ FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
 // PUBLISH DI MODULE
 module.exports = {
   'launcher:Firefox': ['type', FirefoxBrowser],
+  'launcher:FirefoxDeveloper': ['type', FirefoxDeveloperBrowser],
   'launcher:FirefoxAurora': ['type', FirefoxAuroraBrowser],
   'launcher:FirefoxNightly': ['type', FirefoxNightlyBrowser]
 };
