@@ -31,6 +31,25 @@ var getFirefoxExe = function(firefoxDirName) {
   return 'C:\\Program Files' + suffix;
 }
 
+var getFirefoxWithFallbackOnOSX = function() {
+  if (process.platform !== 'darwin') {
+    return null;
+  }
+
+  var firefoxDirNames = Array.prototype.slice.call(arguments);
+
+  var prefix = '/Applications/';
+  var suffix = '.app/Contents/MacOS/firefox-bin';
+
+  var path;
+  for (var i = 0; i < firefoxDirNames.length; i++) {
+    path = prefix + firefoxDirNames[i] + suffix;
+    if (fs.existsSync(path)) {
+      return path;
+    }
+  }
+};
+
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
 var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
   baseBrowserDecorator(this);
@@ -79,7 +98,7 @@ FirefoxDeveloperBrowser.prototype = {
   name: 'FirefoxDeveloper',
   DEFAULT_CMD: {
     linux: 'firefox',
-    darwin: '/Applications/FirefoxDeveloper.app/Contents/MacOS/firefox-bin',
+    darwin: getFirefoxWithFallbackOnOSX('FirefoxDeveloperEdition', 'FirefoxAurora'),
     win32: getFirefoxExe('Firefox Developer Edition')
   },
   ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
