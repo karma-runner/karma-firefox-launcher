@@ -50,9 +50,10 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
   this._start = function(url) {
     var self = this;
     var command = this._getCommand();
+    var profilePath = args.profile || self._tempDir;
 
     fs.writeFileSync(self._tempDir + '/prefs.js', this._getPrefs(args.prefs));
-    self._execCommand(command, [url, '-profile', self._tempDir, '-no-remote']);
+    self._execCommand(command, [url, '-profile', profilePath, '-no-remote']);
   };
 };
 
