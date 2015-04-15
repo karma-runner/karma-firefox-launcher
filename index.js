@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 var spawn = require('child_process').spawn;
 
 
@@ -6,8 +7,9 @@ var PREFS =
     'user_pref("browser.shell.checkDefaultBrowser", false);\n' +
     'user_pref("browser.bookmarks.restore_default_bookmarks", false);\n' +
     'user_pref("dom.disable_open_during_load", false);\n' +
-    'user_pref("dom.max_script_run_time", 0);\n';
-
+    'user_pref("dom.max_script_run_time", 0);\n' +
+    'user_pref("extensions.autoDisableScopes", 0);\n' +
+    'user_pref("extensions.enabledScopes", 15);\n';
 
 // Return location of firefox.exe file for a given Firefox directory
 // (available: "Mozilla Firefox", "Aurora", "Nightly").
@@ -70,6 +72,17 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     var self = this;
     var command = this._getCommand();
     var profilePath = args.profile || self._tempDir;
+    var extensionsDir;
+
+    if (Array.isArray(args.extensions)) {
+      extensionsDir = path.resolve(self._tempDir, 'extensions');
+      fs.mkdirSync(extensionsDir);
+      args.extensions.forEach(function (ext) {
+        var extBuffer = fs.readFileSync(ext);
+        var copyDestination = path.resolve(extensionsDir, path.basename(ext));
+        fs.writeFileSync(copyDestination, extBuffer);
+      });
+    }
 
     fs.writeFileSync(self._tempDir + '/prefs.js', this._getPrefs(args.prefs));
     self._execCommand(command, [url, '-profile', profilePath, '-no-remote']);
