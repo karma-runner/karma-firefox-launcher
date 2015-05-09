@@ -81,6 +81,7 @@ FirefoxBrowser.prototype = {
 
   DEFAULT_CMD: {
     linux: 'firefox',
+    freebsd: 'firefox',
     darwin: '/Applications/Firefox.app/Contents/MacOS/firefox-bin',
     win32: getFirefoxExe('Mozilla Firefox')
   },
