@@ -16,8 +16,7 @@
     "firefox"
   ],
   "author": "Vojta Jina <vojta.jina@gmail.com>",
-  "dependencies": {},
-  "peerDependencies": {
+  "dependencies": {
     "karma": ">=0.9"
   },
   "license": "MIT",
