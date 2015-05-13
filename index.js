@@ -25,8 +25,11 @@ var getFirefoxExe = function(firefoxDirName) {
 
   for (var i = 0; i < prefixes.length; i++) {
     prefix = prefixes[i];
-    if (fs.existsSync(prefix + suffix)) {
+    try {
+      fs.accessSync(prefix + suffix);
       return prefix + suffix;
+    } catch (e) {
+      return 'C:\\Program Files' + suffix;
     }
   }
 
@@ -46,9 +49,10 @@ var getFirefoxWithFallbackOnOSX = function() {
   var path;
   for (var i = 0; i < firefoxDirNames.length; i++) {
     path = prefix + firefoxDirNames[i] + suffix;
-    if (fs.existsSync(path)) {
+    try {
+      fs.accessSync(path);
       return path;
-    }
+    } catch (e) {}
   }
 };
 
