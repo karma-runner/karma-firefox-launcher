@@ -8,6 +8,7 @@ var PREFS =
     'user_pref("browser.bookmarks.restore_default_bookmarks", false);\n' +
     'user_pref("dom.disable_open_during_load", false);\n' +
     'user_pref("dom.max_script_run_time", 0);\n' +
+    'user_pref("dom.min_background_timeout_value", 10);\n' +
     'user_pref("extensions.autoDisableScopes", 0);\n' +
     'user_pref("extensions.enabledScopes", 15);\n';
 
