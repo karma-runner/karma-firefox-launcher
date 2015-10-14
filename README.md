@@ -92,6 +92,12 @@ Then you should name your extension `myCustomExt@suchandsuch.xpi`.
 
 ----
 
+### Troubleshooting
+
+* If you installed Firefox using Homebrew, Karma may not be able to capture the browser. To fix this, uninstall Firefox using homebrew, and then install it from https://www.mozilla.org/en-US/firefox/new/.
+
+----
+
 For more information on Karma see the [homepage].
 
 
