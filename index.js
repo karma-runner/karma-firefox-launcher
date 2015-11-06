@@ -77,7 +77,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     var extensionsDir;
 
     if (Array.isArray(args.extensions)) {
-      extensionsDir = path.resolve(self._tempDir, 'extensions');
+      extensionsDir = path.resolve(profilePath, 'extensions');
       fs.mkdirSync(extensionsDir);
       args.extensions.forEach(function (ext) {
         var extBuffer = fs.readFileSync(ext);
@@ -86,7 +86,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
       });
     }
 
-    fs.writeFileSync(self._tempDir + '/prefs.js', this._getPrefs(args.prefs));
+    fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs));
     self._execCommand(
       command,
       [url, '-profile', profilePath, '-no-remote'].concat(flags)
