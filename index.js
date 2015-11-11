@@ -40,15 +40,21 @@ var getFirefoxWithFallbackOnOSX = function() {
   }
 
   var firefoxDirNames = Array.prototype.slice.call(arguments);
-
   var prefix = '/Applications/';
   var suffix = '.app/Contents/MacOS/firefox-bin';
 
-  var path;
+  var bin;
+  var homeBin;
   for (var i = 0; i < firefoxDirNames.length; i++) {
-    path = prefix + firefoxDirNames[i] + suffix;
-    if (fs.existsSync(path)) {
-      return path;
+    bin = prefix + firefoxDirNames[i] + suffix;
+    homeBin = path.join(process.env.HOME, bin);
+
+    if (fs.existsSync(homeBin)) {
+      return homeBin;
+    }
+
+    if (fs.existsSync(bin)) {
+      return bin;
     }
   }
 };
@@ -101,7 +107,7 @@ FirefoxBrowser.prototype = {
   DEFAULT_CMD: {
     linux: 'firefox',
     freebsd: 'firefox',
-    darwin: '/Applications/Firefox.app/Contents/MacOS/firefox-bin',
+    darwin: getFirefoxWithFallbackOnOSX('Firefox'),
     win32: getFirefoxExe('Mozilla Firefox')
   },
   ENV_CMD: 'FIREFOX_BIN'
@@ -135,7 +141,7 @@ FirefoxAuroraBrowser.prototype = {
   name: 'FirefoxAurora',
   DEFAULT_CMD: {
     linux: 'firefox',
-    darwin: '/Applications/FirefoxAurora.app/Contents/MacOS/firefox-bin',
+    darwin: getFirefoxWithFallbackOnOSX('FirefoxAurora'),
     win32: getFirefoxExe('Aurora')
   },
   ENV_CMD: 'FIREFOX_AURORA_BIN'
@@ -153,7 +159,7 @@ FirefoxNightlyBrowser.prototype = {
 
   DEFAULT_CMD: {
     linux: 'firefox',
-    darwin: '/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin',
+    darwin: getFirefoxWithFallbackOnOSX('FirefoxNightly'),
     win32: getFirefoxExe('Nightly')
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
