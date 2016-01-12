@@ -234,6 +234,7 @@ const FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
     const self = this
     const command = args.command || this._getCommand()
     const profilePath = args.profile || self._tempDir
+    const customProfile = args.customProfile || '';
     const flags = args.flags || []
     let extensionsDir
 
@@ -267,7 +268,7 @@ const FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
     browserProcessPid = undefined
     self._execCommand(
       command,
-      [url, '-profile', translatedProfilePath, '-no-remote', '-wait-for-browser'].concat(flags)
+      [url, customProfile ? `-p ${customProfile}` : `-profile ${translatedProfilePath}`, '-no-remote', '-wait-for-browser'].concat(flags)
     )
 
     self._process.stderr.on('data', errBuff => {
