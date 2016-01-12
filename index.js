@@ -80,6 +80,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     var command = this._getCommand();
     var profilePath = args.profile || self._tempDir;
     var flags = args.flags || [];
+    var customProfile = args.customProfile || '';
     var extensionsDir;
 
     if (Array.isArray(args.extensions)) {
@@ -95,7 +96,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs));
     self._execCommand(
       command,
-      [url, '-profile', profilePath, '-no-remote'].concat(flags)
+        [url, (customProfile !== '') ? '-p ' + customProfile : '-profile' + profilePath , '-no-remote'].concat(flags)
     );
   };
 };
