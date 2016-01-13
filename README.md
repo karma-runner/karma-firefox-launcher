@@ -114,13 +114,13 @@ Example:
 browsers: ['FirefoxWithMyExtension'],
 
 customLaunchers: {
-	FirefoxWithMyExtension: {
-		base: 'Firefox',
-		customProfile: 'Karma',
-		extensions: [
-			path.resolve(__dirname, '../my@extention.com.xpi'),
-		]
-	}
+  FirefoxWithMyExtension: {
+	base: 'Firefox',
+	customProfile: 'Karma',
+	extensions: [
+	  path.resolve(__dirname, '../my@extention.com.xpi'),
+	]
+  }
 }
 ```
 
