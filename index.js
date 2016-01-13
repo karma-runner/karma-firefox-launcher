@@ -96,7 +96,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs));
     self._execCommand(
       command,
-        [url, (customProfile !== '') ? '-p ' + customProfile : '-profile' + profilePath , '-no-remote'].concat(flags)
+      [url, (customProfile !== '') ? '-p ' + customProfile : '-profile ' + profilePath , '-no-remote'].concat(flags)
     );
   };
 };
