@@ -105,6 +105,26 @@ customLaunchers: {
     }
 }
 ```
+### Starting a specific FF profile by its name
+
+When adding "customProfile" to the "customLauncher" Firefox will launch said profile. The profiles list is shown when you execute "firefox.exe -p". 
+Example:
+
+```js
+browsers: ['FirefoxWithMyExtension'],
+
+customLaunchers: {
+	FirefoxWithMyExtension: {
+		base: 'Firefox',
+		customProfile: 'Karma',
+		extensions: [
+			path.resolve(__dirname, '../my@extention.com.xpi'),
+		]
+	}
+}
+```
+
+This will upload the "karma" firefox i've setup beforehand using "firefox.exe -p", in it, my configs, such as imported certs.
 
 **Please note**: the extension name must exactly match the 'id' of the extension. You can discover the 'id' of your
 extension by extracting the .xpi (i.e. `unzip XXX.xpi`) and opening the install.RDF file with a text editor, then look
