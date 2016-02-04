@@ -97,7 +97,7 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     (customProfile !== '') ? flags = [] : null ;
     self._execCommand(
       command,
-      [url, (customProfile !== '') ? '-p ' + customProfile : '-profile ' + profilePath , '-no-remote'].concat(flags)
+      [url, (customProfile !== '') ? '-p ' + customProfile : '-profile ' + profilePath + '-no-remote'].concat(flags)
     );
   };
 };
