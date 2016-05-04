@@ -19,19 +19,25 @@ var getFirefoxExe = function(firefoxDirName) {
     return null;
   }
 
-
+  var i;
+  var len;
   var prefix;
   var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']];
-  var suffix = '\\'+ firefoxDirName + '\\firefox.exe';
+  var suffix = 'firefox.exe';
+  
+  for (i = 0, len = prefixes.length; i < len; i++) {
+    prefixes[i] = path.join(prefixes[i], firefoxDirName);
+  }
+  prefixes.push.apply(prefixes, process.env.PATH.split(path.delimiter));
 
-  for (var i = 0; i < prefixes.length; i++) {
-    prefix = prefixes[i];
-    if (fs.existsSync(prefix + suffix)) {
-      return prefix + suffix;
+  for (i = 0, len = prefixes.length; i < len; i++) {
+    prefix = path.join(prefixes[i], suffix);
+    if (fs.existsSync(prefix)) {
+      return prefix;
     }
   }
 
-  return 'C:\\Program Files' + suffix;
+  return path.join('C:\\Program Files', firefoxDirName, suffix);
 }
 
 var getFirefoxWithFallbackOnOSX = function() {
