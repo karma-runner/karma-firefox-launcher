@@ -12,16 +12,46 @@ var PREFS =
     'user_pref("extensions.autoDisableScopes", 0);\n' +
     'user_pref("extensions.enabledScopes", 15);\n';
 
+
+// Get all possible Program Files folders even on other drives
+// inspect the user's path to find other drives that may contain Program Files folders
+var getAllPrefixes = function() {
+	var drives = [];
+	var paden = process.env.Path.split(';');
+	var re = /^[A-Z]:\\/i;
+	var pad;
+	for (var p = 0; p < paden.length; p++) {
+		pad = paden[p];
+		if(re.test(pad) && drives.indexOf(pad[0]) === -1){
+			drives.push(pad[0]);
+		}
+	}
+
+	var result = [];
+	var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']];
+	var prefix;
+	for (var i = 0; i < prefixes.length; i++) {
+		for(var d = 0; d < drives.length; d += 1){
+			prefix = drives[d] + prefixes[i].substr(1);
+			if(result.indexOf(prefix) === -1) {
+				result.push(prefix);
+			}
+		}
+	}
+	return result;
+};
+
+
 // Return location of firefox.exe file for a given Firefox directory
 // (available: "Mozilla Firefox", "Aurora", "Nightly").
 var getFirefoxExe = function(firefoxDirName) {
-  if (process.platform !== 'win32') {
+  if (process.platform !== 'win32' && process.platform !== 'win64') {
     return null;
   }
 
 
   var prefix;
-  var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']];
+  var prefixes = getAllPrefixes();
   var suffix = '\\'+ firefoxDirName + '\\firefox.exe';
 
   for (var i = 0; i < prefixes.length; i++) {
