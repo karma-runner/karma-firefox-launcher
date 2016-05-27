@@ -15,7 +15,7 @@ var PREFS =
 // Return location of firefox.exe file for a given Firefox directory
 // (available: "Mozilla Firefox", "Aurora", "Nightly").
 var getFirefoxExe = function(firefoxDirName) {
-  if (process.platform !== 'win32') {
+  if (process.platform !== 'win32' && process.platform !== 'win64') {
     return null;
   }
 
