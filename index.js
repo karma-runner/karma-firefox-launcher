@@ -75,10 +75,13 @@ var getFirefoxWithFallbackOnOSX = function() {
   var homeBin;
   for (var i = 0; i < firefoxDirNames.length; i++) {
     bin = prefix + firefoxDirNames[i] + suffix;
-    homeBin = path.join(process.env.HOME, bin);
 
-    if (fs.existsSync(homeBin)) {
-      return homeBin;
+    if ('HOME' in process.env) {
+      homeBin = path.join(process.env.HOME, bin);
+
+      if (fs.existsSync(homeBin)) {
+        return homeBin;
+      }
     }
 
     if (fs.existsSync(bin)) {
