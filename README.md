@@ -90,6 +90,17 @@ for the `em:id` tag under the `Description` tag. If your extension manifest look
 
 Then you should name your extension `myCustomExt@suchandsuch.xpi`.
 
+### Use Custom Firefox Binary
+If you want to use custom version of Firefox, you can specify full path to `firefox.exe`
+```js
+customLaunchers: {
+    Firefox4: {
+        base: 'Firefox',
+        binPath: 'C:\\opt\\Firefox Setup 4.0.1\\firefox.exe'
+    }
+}
+```
+
 ----
 
 For more information on Karma see the [homepage].
