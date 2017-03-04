@@ -112,9 +112,13 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
     var self = this;
     var command = this._getCommand();
     var profilePath = args.profile || self._tempDir;
+    var writePrefs = true;
     var flags = args.flags || [];
     var extensionsDir;
 
+    if (typeof args.writePrefs !== 'undefined') {
+      writePrefs = args.writePrefs;
+    }
     if (Array.isArray(args.extensions)) {
       extensionsDir = path.resolve(profilePath, 'extensions');
       fs.mkdirSync(extensionsDir);
@@ -125,7 +129,9 @@ var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
       });
     }
 
-    fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs));
+    if (writePrefs) {
+      fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs));
+    }
     self._execCommand(
       command,
       [url, '-profile', profilePath, '-no-remote'].concat(flags)
