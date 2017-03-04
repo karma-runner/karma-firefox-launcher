@@ -1,138 +1,136 @@
-var fs = require('fs');
-var path = require('path');
-var spawn = require('child_process').spawn;
+'use strict'
 
+var fs = require('fs')
+var path = require('path')
 
-var PREFS =
-    'user_pref("browser.shell.checkDefaultBrowser", false);\n' +
-    'user_pref("browser.bookmarks.restore_default_bookmarks", false);\n' +
-    'user_pref("dom.disable_open_during_load", false);\n' +
-    'user_pref("dom.max_script_run_time", 0);\n' +
-    'user_pref("dom.min_background_timeout_value", 10);\n' +
-    'user_pref("extensions.autoDisableScopes", 0);\n' +
-    'user_pref("browser.tabs.remote.autostart", false);\n' +
-    'user_pref("browser.tabs.remote.autostart.2", false);\n' +
-    'user_pref("extensions.enabledScopes", 15);\n';
-
+var PREFS = [
+  'user_pref("browser.shell.checkDefaultBrowser", false);',
+  'user_pref("browser.bookmarks.restore_default_bookmarks", false);',
+  'user_pref("dom.disable_open_during_load", false);',
+  'user_pref("dom.max_script_run_time", 0);',
+  'user_pref("dom.min_background_timeout_value", 10);',
+  'user_pref("extensions.autoDisableScopes", 0);',
+  'user_pref("browser.tabs.remote.autostart", false);',
+  'user_pref("browser.tabs.remote.autostart.2", false);',
+  'user_pref("extensions.enabledScopes", 15);'
+].join('\n')
 
 // Get all possible Program Files folders even on other drives
 // inspect the user's path to find other drives that may contain Program Files folders
-var getAllPrefixes = function() {
-	var drives = [];
-	var paden = process.env.Path.split(';');
-	var re = /^[A-Z]:\\/i;
-	var pad;
-	for (var p = 0; p < paden.length; p++) {
-		pad = paden[p];
-		if(re.test(pad) && drives.indexOf(pad[0]) === -1){
-			drives.push(pad[0]);
-		}
-	}
-
-	var result = [];
-	var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']];
-	var prefix;
-	for (var i = 0; i < prefixes.length; i++) {
-		for(var d = 0; d < drives.length; d += 1){
-			prefix = drives[d] + prefixes[i].substr(1);
-			if(result.indexOf(prefix) === -1) {
-				result.push(prefix);
-			}
-		}
-	}
-	return result;
-};
-
-// Return location of firefox.exe file for a given Firefox directory
-// (available: "Mozilla Firefox", "Aurora", "Nightly").
-var getFirefoxExe = function(firefoxDirName) {
-  if (process.platform !== 'win32' && process.platform !== 'win64') {
-    return null;
-  }
-
-  var prefix;
-  var prefixes = getAllPrefixes();
-  var suffix = '\\'+ firefoxDirName + '\\firefox.exe';
-
-  for (var i = 0; i < prefixes.length; i++) {
-    prefix = prefixes[i];
-    if (fs.existsSync(prefix + suffix)) {
-      return prefix + suffix;
+var getAllPrefixes = function () {
+  var drives = []
+  var paden = process.env.Path.split(';')
+  var re = /^[A-Z]:\\/i
+  var pad
+  for (var p = 0; p < paden.length; p++) {
+    pad = paden[p]
+    if (re.test(pad) && drives.indexOf(pad[0]) === -1) {
+      drives.push(pad[0])
     }
   }
 
-  return 'C:\\Program Files' + suffix;
+  var result = []
+  var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']]
+  var prefix
+  for (var i = 0; i < prefixes.length; i++) {
+    for (var d = 0; d < drives.length; d += 1) {
+      prefix = drives[d] + prefixes[i].substr(1)
+      if (result.indexOf(prefix) === -1) {
+        result.push(prefix)
+      }
+    }
+  }
+  return result
 }
 
-var getFirefoxWithFallbackOnOSX = function() {
-  if (process.platform !== 'darwin') {
-    return null;
+// Return location of firefox.exe file for a given Firefox directory
+// (available: "Mozilla Firefox", "Aurora", "Nightly").
+var getFirefoxExe = function (firefoxDirName) {
+  if (process.platform !== 'win32' && process.platform !== 'win64') {
+    return null
   }
 
-  var firefoxDirNames = Array.prototype.slice.call(arguments);
-  var prefix = '/Applications/';
-  var suffix = '.app/Contents/MacOS/firefox-bin';
+  var prefix
+  var prefixes = getAllPrefixes()
+  var suffix = '\\' + firefoxDirName + '\\firefox.exe'
 
-  var bin;
-  var homeBin;
+  for (var i = 0; i < prefixes.length; i++) {
+    prefix = prefixes[i]
+    if (fs.existsSync(prefix + suffix)) {
+      return prefix + suffix
+    }
+  }
+
+  return 'C:\\Program Files' + suffix
+}
+
+var getFirefoxWithFallbackOnOSX = function () {
+  if (process.platform !== 'darwin') {
+    return null
+  }
+
+  var firefoxDirNames = Array.prototype.slice.call(arguments)
+  var prefix = '/Applications/'
+  var suffix = '.app/Contents/MacOS/firefox-bin'
+
+  var bin
+  var homeBin
   for (var i = 0; i < firefoxDirNames.length; i++) {
-    bin = prefix + firefoxDirNames[i] + suffix;
+    bin = prefix + firefoxDirNames[i] + suffix
 
     if ('HOME' in process.env) {
-      homeBin = path.join(process.env.HOME, bin);
+      homeBin = path.join(process.env.HOME, bin)
 
       if (fs.existsSync(homeBin)) {
-        return homeBin;
+        return homeBin
       }
     }
 
     if (fs.existsSync(bin)) {
-      return bin;
+      return bin
     }
   }
-};
+}
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
-var FirefoxBrowser = function(id, baseBrowserDecorator, args, logger) {
-  baseBrowserDecorator(this);
+var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
+  baseBrowserDecorator(this)
 
-  var log = logger.create('launcher');
-  this._getPrefs = function(prefs) {
+  this._getPrefs = function (prefs) {
     if (typeof prefs !== 'object') {
-      return PREFS;
+      return PREFS
     }
-    var result = PREFS;
+    var result = PREFS
     for (var key in prefs) {
-      result += 'user_pref("' + key + '", ' + JSON.stringify(prefs[key]) + ');\n';
+      result += 'user_pref("' + key + '", ' + JSON.stringify(prefs[key]) + ');\n'
     }
-    return result;
+    return result
   }
 
-  this._start = function(url) {
-    var self = this;
-    var command = this._getCommand();
-    var profilePath = args.profile || self._tempDir;
-    var flags = args.flags || [];
-    var extensionsDir;
+  this._start = function (url) {
+    var self = this
+    var command = this._getCommand()
+    var profilePath = args.profile || self._tempDir
+    var flags = args.flags || []
+    var extensionsDir
 
     if (Array.isArray(args.extensions)) {
-      extensionsDir = path.resolve(profilePath, 'extensions');
-      fs.mkdirSync(extensionsDir);
+      extensionsDir = path.resolve(profilePath, 'extensions')
+      fs.mkdirSync(extensionsDir)
       args.extensions.forEach(function (ext) {
-        var extBuffer = fs.readFileSync(ext);
-        var copyDestination = path.resolve(extensionsDir, path.basename(ext));
-        fs.writeFileSync(copyDestination, extBuffer);
-      });
+        var extBuffer = fs.readFileSync(ext)
+        var copyDestination = path.resolve(extensionsDir, path.basename(ext))
+        fs.writeFileSync(copyDestination, extBuffer)
+      })
     }
 
-    fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs));
+    fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs))
     self._execCommand(
       command,
       [url, '-profile', profilePath, '-no-remote'].concat(flags)
-    );
-  };
-};
-
+    )
+  }
+}
 
 FirefoxBrowser.prototype = {
   name: 'Firefox',
@@ -144,14 +142,13 @@ FirefoxBrowser.prototype = {
     win32: getFirefoxExe('Mozilla Firefox')
   },
   ENV_CMD: 'FIREFOX_BIN'
-};
+}
 
-FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
+FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
-
-var FirefoxDeveloperBrowser = function() {
-  FirefoxBrowser.apply(this, arguments);
-};
+var FirefoxDeveloperBrowser = function () {
+  FirefoxBrowser.apply(this, arguments)
+}
 
 FirefoxDeveloperBrowser.prototype = {
   name: 'FirefoxDeveloper',
@@ -161,14 +158,13 @@ FirefoxDeveloperBrowser.prototype = {
     win32: getFirefoxExe('Firefox Developer Edition')
   },
   ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
-};
+}
 
-FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
+FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
-
-var FirefoxAuroraBrowser = function() {
-  FirefoxBrowser.apply(this, arguments);
-};
+var FirefoxAuroraBrowser = function () {
+  FirefoxBrowser.apply(this, arguments)
+}
 
 FirefoxAuroraBrowser.prototype = {
   name: 'FirefoxAurora',
@@ -178,14 +174,13 @@ FirefoxAuroraBrowser.prototype = {
     win32: getFirefoxExe('Aurora')
   },
   ENV_CMD: 'FIREFOX_AURORA_BIN'
-};
+}
 
-FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
+FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
-
-var FirefoxNightlyBrowser = function() {
-  FirefoxBrowser.apply(this, arguments);
-};
+var FirefoxNightlyBrowser = function () {
+  FirefoxBrowser.apply(this, arguments)
+}
 
 FirefoxNightlyBrowser.prototype = {
   name: 'FirefoxNightly',
@@ -196,10 +191,9 @@ FirefoxNightlyBrowser.prototype = {
     win32: getFirefoxExe('Nightly')
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
-};
+}
 
-FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger'];
-
+FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
 // PUBLISH DI MODULE
 module.exports = {
@@ -207,4 +201,4 @@ module.exports = {
   'launcher:FirefoxDeveloper': ['type', FirefoxDeveloperBrowser],
   'launcher:FirefoxAurora': ['type', FirefoxAuroraBrowser],
   'launcher:FirefoxNightly': ['type', FirefoxNightlyBrowser]
-};
+}
