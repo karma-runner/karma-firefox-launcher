@@ -10,6 +10,8 @@ var PREFS =
     'user_pref("dom.max_script_run_time", 0);\n' +
     'user_pref("dom.min_background_timeout_value", 10);\n' +
     'user_pref("extensions.autoDisableScopes", 0);\n' +
+    'user_pref("browser.tabs.remote.autostart", false);\n' +
+    'user_pref("browser.tabs.remote.autostart.2", false);\n' +
     'user_pref("extensions.enabledScopes", 15);\n';
 
 
