@@ -33,10 +33,12 @@ var getAllPrefixes = function () {
   var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']]
   var prefix
   for (var i = 0; i < prefixes.length; i++) {
-    for (var d = 0; d < drives.length; d += 1) {
-      prefix = drives[d] + prefixes[i].substr(1)
-      if (result.indexOf(prefix) === -1) {
-        result.push(prefix)
+    if (typeof prefixes[i] !== 'undefined') {
+      for (var d = 0; d < drives.length; d += 1) {
+        prefix = drives[d] + prefixes[i].substr(1)
+        if (result.indexOf(prefix) === -1) {
+          result.push(prefix)
+        }
       }
     }
   }
