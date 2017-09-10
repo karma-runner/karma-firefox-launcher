@@ -92,6 +92,22 @@ var getFirefoxWithFallbackOnOSX = function () {
   }
 }
 
+var makeHeadlessVersion = function (Browser) {
+  var HeadlessBrowser = function () {
+    Browser.apply(this, arguments)
+    var execCommand = this._execCommand
+    this._execCommand = function (command, args) {
+      execCommand.call(this, command, args.concat('-headless'))
+    }
+  }
+
+  HeadlessBrowser.prototype = Object.create(Browser.prototype, {
+    name: { value: Browser.prototype.name + 'Headless' }
+  })
+  HeadlessBrowser.$inject = Browser.$inject
+  return HeadlessBrowser
+}
+
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
 var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
   baseBrowserDecorator(this)
@@ -146,6 +162,8 @@ FirefoxBrowser.prototype = {
 
 FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
+var FirefoxHeadlessBrowser = makeHeadlessVersion(FirefoxBrowser)
+
 var FirefoxDeveloperBrowser = function () {
   FirefoxBrowser.apply(this, arguments)
 }
@@ -162,6 +180,8 @@ FirefoxDeveloperBrowser.prototype = {
 
 FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
+var FirefoxDeveloperHeadlessBrowser = makeHeadlessVersion(FirefoxDeveloperBrowser)
+
 var FirefoxAuroraBrowser = function () {
   FirefoxBrowser.apply(this, arguments)
 }
@@ -177,6 +197,8 @@ FirefoxAuroraBrowser.prototype = {
 }
 
 FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+
+var FirefoxAuroraHeadlessBrowser = makeHeadlessVersion(FirefoxAuroraBrowser)
 
 var FirefoxNightlyBrowser = function () {
   FirefoxBrowser.apply(this, arguments)
@@ -195,10 +217,16 @@ FirefoxNightlyBrowser.prototype = {
 
 FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
 
+var FirefoxNightlyHeadlessBrowser = makeHeadlessVersion(FirefoxNightlyBrowser)
+
 // PUBLISH DI MODULE
 module.exports = {
   'launcher:Firefox': ['type', FirefoxBrowser],
+  'launcher:FirefoxHeadless': ['type', FirefoxHeadlessBrowser],
   'launcher:FirefoxDeveloper': ['type', FirefoxDeveloperBrowser],
+  'launcher:FirefoxDeveloperHeadless': ['type', FirefoxDeveloperHeadlessBrowser],
   'launcher:FirefoxAurora': ['type', FirefoxAuroraBrowser],
-  'launcher:FirefoxNightly': ['type', FirefoxNightlyBrowser]
+  'launcher:FirefoxAuroraHeadless': ['type', FirefoxAuroraHeadlessBrowser],
+  'launcher:FirefoxNightly': ['type', FirefoxNightlyBrowser],
+  'launcher:FirefoxNightlyHeadless': ['type', FirefoxNightlyHeadlessBrowser]
 }
