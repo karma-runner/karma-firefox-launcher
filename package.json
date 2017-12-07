@@ -22,11 +22,11 @@
   "author": "Vojta Jina <vojta.jina@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "karma": "^1.5.0",
+    "karma": "^1.7.1",
     "karma-mocha": "^1.3.0",
-    "mocha": "^3.2.0",
-    "standard": "^9.0.0",
-    "standard-version": "^4.0.0"
+    "mocha": "^4.0.1",
+    "standard": "^10.0.3",
+    "standard-version": "^4.2.0"
   },
   "contributors": [
     "Mark Ethan Trostler <mark@zzo.com>",
