@@ -210,7 +210,7 @@ FirefoxNightlyBrowser.prototype = {
   name: 'FirefoxNightly',
 
   DEFAULT_CMD: {
-    linux: 'firefox',
+    linux: 'firefox-trunk',
     darwin: getFirefoxWithFallbackOnOSX('FirefoxNightly'),
     win32: getFirefoxExe('Nightly')
   },
