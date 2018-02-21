@@ -99,7 +99,9 @@ var makeHeadlessVersion = function (Browser) {
     Browser.apply(this, arguments)
     var execCommand = this._execCommand
     this._execCommand = function (command, args) {
-      execCommand.call(this, command, args.concat('-headless'))
+      // --start-debugger-server ws:6000 can also be used, since remote debugging protocol also speaks WebSockets
+      // https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/
+      execCommand.call(this, command, args.concat(['-headless', '--start-debugger-server 6000']))
     }
   }
 
