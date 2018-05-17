@@ -1,20 +1,18 @@
 # karma-firefox-launcher
 
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/karma-runner/karma-firefox-launcher)
+ [![npm version](https://img.shields.io/npm/v/karma-firefox-launcher.svg?style=flat-square)](https://www.npmjs.com/package/karma-firefox-launcher) [![npm downloads](https://img.shields.io/npm/dm/karma-firefox-launcher.svg?style=flat-square)](https://www.npmjs.com/package/karma-firefox-launcher)
+
+[![Build Status](https://img.shields.io/travis/karma-runner/karma-firefox-launcher/master.svg?style=flat-square)](https://travis-ci.org/karma-runner/karma-firefox-launcher) [![Dependency Status](https://img.shields.io/david/karma-runner/karma-firefox-launcher.svg?style=flat-square)](https://david-dm.org/karma-runner/karma-firefox-launcher) [![devDependency Status](https://img.shields.io/david/dev/karma-runner/karma-firefox-launcher.svg?style=flat-square)](https://david-dm.org/karma-runner/karma-firefox-launcher#info=devDependencies)
+
 > Launcher for Mozilla Firefox.
 
 ## Installation
 
 The easiest way is to keep `karma-firefox-launcher` as a devDependency in your `package.json`.
-```json
-{
-  "devDependencies": {
-    "karma": "~0.10",
-    "karma-firefox-launcher": "~0.1"
-  }
-}
-```
 
 You can simple do it by:
+
 ```bash
 npm install karma-firefox-launcher --save-dev
 ```
@@ -25,8 +23,8 @@ npm install karma-firefox-launcher --save-dev
 module.exports = function(config) {
   config.set({
     browsers: ['Firefox', 'FirefoxDeveloper', 'FirefoxAurora', 'FirefoxNightly'],
-  });
-};
+  })
+}
 ```
 
 You can pass list of browsers as a CLI argument too:
