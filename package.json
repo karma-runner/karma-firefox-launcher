@@ -50,5 +50,7 @@
     "Schaaf, Martin <mschaaf@datameer.com>",
     "Žilvinas Urbonas <zilvinas.urbon@gmail.com>"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "is-wsl": "^2.1.0"
+  }
 }
