@@ -52,18 +52,18 @@ var getFirefoxExe = function (firefoxDirName) {
     return null
   }
 
-  var prefix
-  var prefixes = getAllPrefixes()
-  var suffix = '\\' + firefoxDirName + '\\firefox.exe'
+  var firefoxDirNames = Array.prototype.slice.call(arguments)
 
-  for (var i = 0; i < prefixes.length; i++) {
-    prefix = prefixes[i]
-    if (fs.existsSync(prefix + suffix)) {
-      return prefix + suffix
+  for (var prefix of getAllPrefixes()) {
+    for (var dir of firefoxDirNames) {
+      var candidate = path.join(prefix, dir, 'firefox.exe')
+      if (fs.existsSync(candidate)) {
+        return candidate
+      }
     }
   }
 
-  return 'C:\\Program Files' + suffix
+  return path.join('C:\\Program Files', firefoxDirNames[0], 'firefox.exe')
 }
 
 var getFirefoxWithFallbackOnOSX = function () {
@@ -213,8 +213,8 @@ FirefoxNightlyBrowser.prototype = {
 
   DEFAULT_CMD: {
     linux: 'firefox',
-    darwin: getFirefoxWithFallbackOnOSX('FirefoxNightly'),
-    win32: getFirefoxExe('Nightly')
+    darwin: getFirefoxWithFallbackOnOSX('FirefoxNightly', 'Firefox Nightly'),
+    win32: getFirefoxExe('Nightly', 'Firefox Nightly')
   },
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 }
