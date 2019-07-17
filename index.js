@@ -147,7 +147,7 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
     fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs))
     self._execCommand(
       command,
-      [url, '-profile', profilePath, '-no-remote'].concat(flags)
+      [url, '-profile', profilePath, '-no-remote', '-wait-for-browser'].concat(flags)
     )
   }
 }
