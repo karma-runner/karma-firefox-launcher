@@ -13,7 +13,6 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: false,
     browsers: ['Firefox', 'FirefoxHeadless'],
-    singleRun: false,
     concurrency: Infinity,
     plugins: [
       require.resolve('./'),
