@@ -2,6 +2,8 @@
 
 var fs = require('fs')
 var path = require('path')
+var isWsl = require('is-wsl')
+var { execSync } = require('child_process')
 
 var PREFS = [
   'user_pref("browser.shell.checkDefaultBrowser", false);',
@@ -64,6 +66,59 @@ var getFirefoxExe = function (firefoxDirName) {
   }
 
   return path.join('C:\\Program Files', firefoxDirNames[0], 'firefox.exe')
+}
+
+var getAllPrefixesWsl = function () {
+  var drives = []
+  // Some folks configure their wsl.conf to mount Windows drives without the
+  // /mnt prefix (e.g. see https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly)
+  //
+  // In fact, they could configure this to be any number of things. So we
+  // take each path, convert it to a Windows path, check if it looks like
+  // it starts with a drive and then record that.
+  var re = /^([A-Z]):\\/i
+  for (var pathElem of process.env.PATH.split(':')) {
+    var windowsPath = execSync('wslpath -w "' + pathElem + '"').toString()
+    var matches = windowsPath.match(re)
+    if (matches !== null && drives.indexOf(matches[1]) === -1) {
+      drives.push(matches[1])
+    }
+  }
+
+  var result = []
+  // We don't have the PROGRAMFILES or PROGRAMFILES(X86) environment variables
+  // in WSL so we just hard code them.
+  var prefixes = ['Program Files', 'Program Files (x86)']
+  for (var prefix of prefixes) {
+    for (var drive of drives) {
+      // We only have the drive, and only wslpath knows exactly what they map to
+      // in Linux, so we convert it back here.
+      var wslPath =
+        execSync('wslpath "' + drive + ':\\' + prefix + '"').toString().trim()
+      result.push(wslPath)
+    }
+  }
+
+  return result
+}
+
+var getFirefoxExeWsl = function (firefoxDirName) {
+  if (!isWsl) {
+    return null
+  }
+
+  var firefoxDirNames = Array.prototype.slice.call(arguments)
+
+  for (var prefix of getAllPrefixesWsl()) {
+    for (var dir of firefoxDirNames) {
+      var candidate = path.join(prefix, dir, 'firefox.exe')
+      if (fs.existsSync(candidate)) {
+        return candidate
+      }
+    }
+  }
+
+  return path.join('/mnt/c/Program Files/', firefoxDirNames[0], 'firefox.exe')
 }
 
 var getFirefoxWithFallbackOnOSX = function () {
@@ -144,10 +199,12 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
       })
     }
 
-    fs.writeFileSync(profilePath + '/prefs.js', this._getPrefs(args.prefs))
+    fs.writeFileSync(path.join(profilePath, 'prefs.js'), this._getPrefs(args.prefs))
+    var translatedProfilePath =
+      isWsl ? execSync('wslpath -w ' + profilePath).toString().trim() : profilePath
     self._execCommand(
       command,
-      [url, '-profile', profilePath, '-no-remote', '-wait-for-browser'].concat(flags)
+      [url, '-profile', translatedProfilePath, '-no-remote', '-wait-for-browser'].concat(flags)
     )
   }
 }
@@ -156,7 +213,7 @@ FirefoxBrowser.prototype = {
   name: 'Firefox',
 
   DEFAULT_CMD: {
-    linux: 'firefox',
+    linux: isWsl ? getFirefoxExeWsl('Mozilla Firefox') : 'firefox',
     freebsd: 'firefox',
     darwin: getFirefoxWithFallbackOnOSX('Firefox'),
     win32: getFirefoxExe('Mozilla Firefox')
@@ -175,7 +232,7 @@ var FirefoxDeveloperBrowser = function () {
 FirefoxDeveloperBrowser.prototype = {
   name: 'FirefoxDeveloper',
   DEFAULT_CMD: {
-    linux: 'firefox',
+    linux: isWsl ? getFirefoxExeWsl('Firefox Developer Edition') : 'firefox',
     darwin: getFirefoxWithFallbackOnOSX('FirefoxDeveloperEdition', 'FirefoxAurora'),
     win32: getFirefoxExe('Firefox Developer Edition')
   },
@@ -193,7 +250,7 @@ var FirefoxAuroraBrowser = function () {
 FirefoxAuroraBrowser.prototype = {
   name: 'FirefoxAurora',
   DEFAULT_CMD: {
-    linux: 'firefox',
+    linux: isWsl ? getFirefoxExeWsl('Aurora') : 'firefox',
     darwin: getFirefoxWithFallbackOnOSX('FirefoxAurora'),
     win32: getFirefoxExe('Aurora')
   },
@@ -212,7 +269,7 @@ FirefoxNightlyBrowser.prototype = {
   name: 'FirefoxNightly',
 
   DEFAULT_CMD: {
-    linux: 'firefox',
+    linux: isWsl ? getFirefoxExeWsl('Nightly', 'Firefox Nightly') : 'firefox',
     darwin: getFirefoxWithFallbackOnOSX('FirefoxNightly', 'Firefox Nightly'),
     win32: getFirefoxExe('Nightly', 'Firefox Nightly')
   },
