@@ -4,6 +4,7 @@ var fs = require('fs')
 var path = require('path')
 var isWsl = require('is-wsl')
 var { execSync } = require('child_process')
+var { StringDecoder } = require('string_decoder')
 
 var PREFS = [
   'user_pref("browser.shell.checkDefaultBrowser", false);',
@@ -171,6 +172,8 @@ var makeHeadlessVersion = function (Browser) {
 var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
   baseBrowserDecorator(this)
 
+  var browserProcessPid
+
   this._getPrefs = function (prefs) {
     if (typeof prefs !== 'object') {
       return PREFS
@@ -202,11 +205,46 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
     fs.writeFileSync(path.join(profilePath, 'prefs.js'), this._getPrefs(args.prefs))
     var translatedProfilePath =
       isWsl ? execSync('wslpath -w ' + profilePath).toString().trim() : profilePath
+
+    // If we are using the launcher process, make it print the child process ID
+    // to stderr so we can capture it.
+    //
+    // https://wiki.mozilla.org/Platform/Integration/InjectEject/Launcher_Process/
+    process.env.MOZ_DEBUG_BROWSER_PAUSE = 0
+    browserProcessPid = undefined
     self._execCommand(
       command,
       [url, '-profile', translatedProfilePath, '-no-remote', '-wait-for-browser'].concat(flags)
     )
+
+    self._process.stderr.on('data', errBuff => {
+      var errString
+      if (typeof errBuff === 'string') {
+        errString = errBuff
+      } else {
+        var decoder = new StringDecoder('utf8')
+        errString = decoder.write(errBuff)
+      }
+      var matches = errString.match(/BROWSERBROWSERBROWSERBROWSER\s+debug me @ (\d+)/)
+      if (matches) {
+        browserProcessPid = parseInt(matches[1], 10)
+      }
+    })
   }
+
+  this.on('kill', function (done) {
+    // If we have a separate browser process PID, try killing it.
+    if (browserProcessPid) {
+      try {
+        process.kill(browserProcessPid)
+      } catch (e) {
+        // Ignore failure -- the browser process might have already been
+        // terminated.
+      }
+    }
+
+    return process.nextTick(done)
+  })
 }
 
 FirefoxBrowser.prototype = {
