@@ -1,6 +1,20 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [1.2.0](https://github.com/karma-runner/karma-firefox-launcher/compare/v1.1.0...v1.2.0) (2019-08-09)
+
+
+### Bug Fixes
+
+* Add -wait-for-browser ([540c1dd](https://github.com/karma-runner/karma-firefox-launcher/commit/540c1dd))
+* Look for other paths for Firefox Nightly on Windows and Mac ([6377ee3](https://github.com/karma-runner/karma-firefox-launcher/commit/6377ee3))
+
+
+### Features
+
+* **headless:** add enable remote debugging by default ([0e37f76](https://github.com/karma-runner/karma-firefox-launcher/commit/0e37f76))
+* Add support for running Windows Firefox from WSL ([b4e260e](https://github.com/karma-runner/karma-firefox-launcher/commit/b4e260e))
 
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/karma-runner/karma-firefox-launcher/compare/v1.0.1...v1.1.0) (2017-12-07)
