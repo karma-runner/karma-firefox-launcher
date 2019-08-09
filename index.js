@@ -211,7 +211,7 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
     //
     // https://wiki.mozilla.org/Platform/Integration/InjectEject/Launcher_Process/
     process.env.MOZ_DEBUG_BROWSER_PAUSE = 0
-    browserProcessPid = undefined;
+    browserProcessPid = undefined
     self._execCommand(
       command,
       [url, '-profile', translatedProfilePath, '-no-remote', '-wait-for-browser'].concat(flags)
@@ -233,7 +233,7 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
   }
 
   this.on('kill', function (done) {
-    // If we have a separate browser process PID try killing it.
+    // If we have a separate browser process PID, try killing it.
     if (browserProcessPid) {
       try {
         process.kill(browserProcessPid)
