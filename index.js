@@ -172,6 +172,8 @@ var makeHeadlessVersion = function (Browser) {
 var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
   baseBrowserDecorator(this)
 
+  var browserProcessPid
+
   this._getPrefs = function (prefs) {
     if (typeof prefs !== 'object') {
       return PREFS
@@ -209,12 +211,12 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
     //
     // https://wiki.mozilla.org/Platform/Integration/InjectEject/Launcher_Process/
     process.env.MOZ_DEBUG_BROWSER_PAUSE = 0
+    browserProcessPid = undefined;
     self._execCommand(
       command,
       [url, '-profile', translatedProfilePath, '-no-remote', '-wait-for-browser'].concat(flags)
     )
 
-    var browserProcessPid
     self._process.stderr.on('data', errBuff => {
       var errString
       if (typeof errBuff === 'string') {
@@ -228,21 +230,21 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
         browserProcessPid = parseInt(matches[1], 10)
       }
     })
-
-    self.on('kill', function (done) {
-      // If we have a separate browser process PID try killing it.
-      if (browserProcessPid) {
-        try {
-          process.kill(browserProcessPid)
-        } catch (e) {
-          // Ignore failure -- the browser process might have already been
-          // terminated.
-        }
-      }
-
-      return process.nextTick(done)
-    })
   }
+
+  this.on('kill', function (done) {
+    // If we have a separate browser process PID try killing it.
+    if (browserProcessPid) {
+      try {
+        process.kill(browserProcessPid)
+      } catch (e) {
+        // Ignore failure -- the browser process might have already been
+        // terminated.
+      }
+    }
+
+    return process.nextTick(done)
+  })
 }
 
 FirefoxBrowser.prototype = {
