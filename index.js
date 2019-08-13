@@ -79,10 +79,12 @@ var getAllPrefixesWsl = function () {
   // it starts with a drive and then record that.
   var re = /^([A-Z]):\\/i
   for (var pathElem of process.env.PATH.split(':')) {
-    var windowsPath = execSync('wslpath -w "' + pathElem + '"').toString()
-    var matches = windowsPath.match(re)
-    if (matches !== null && drives.indexOf(matches[1]) === -1) {
-      drives.push(matches[1])
+    if (fs.existsSync(pathElem)) {
+      var windowsPath = execSync('wslpath -w "' + pathElem + '"').toString()
+      var matches = windowsPath.match(re)
+      if (matches !== null && drives.indexOf(matches[1]) === -1) {
+        drives.push(matches[1])
+      }
     }
   }
 
