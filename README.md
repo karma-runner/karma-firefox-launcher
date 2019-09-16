@@ -32,6 +32,8 @@ You can pass list of browsers as a CLI argument too:
 karma start --browsers Firefox,Chrome
 ```
 
+To run Firefox in headless mode, append `Headless` to the version name, e.g. `FirefoxHeadless`, `FirefoxNightlyHeadless`.
+
 ### Custom Preferences
 To configure preferences for the Firefox instance that is loaded, you can specify a custom launcher in your Karma
 config with the preferences under the `prefs` key:
