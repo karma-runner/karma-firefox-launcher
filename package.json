@@ -52,6 +52,6 @@
     "Žilvinas Urbonas <zilvinas.urbon@gmail.com>"
   ],
   "dependencies": {
-    "is-wsl": "^2.1.0"
+    "is-wsl": "^2.1.1"
   }
 }
