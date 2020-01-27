@@ -3,6 +3,7 @@
 var fs = require('fs')
 var path = require('path')
 var isWsl = require('is-wsl')
+var which = require('which')
 var { execSync } = require('child_process')
 var { StringDecoder } = require('string_decoder')
 
@@ -108,6 +109,11 @@ var getAllPrefixesWsl = function () {
 var getFirefoxExeWsl = function (firefoxDirName) {
   if (!isWsl) {
     return null
+  }
+
+  // check if firefox is installed on the wsl side and bypass if its available
+  if (which.sync('firefox', { nothrow: true })) {
+    return null;
   }
 
   var firefoxDirNames = Array.prototype.slice.call(arguments)
