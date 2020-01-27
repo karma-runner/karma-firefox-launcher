@@ -21,7 +21,7 @@ var PREFS = [
 
 // check if firefox is installed on the wsl side and bypass if its available
 if (which.sync('firefox', { nothrow: true })) {
-  isWsl = false;
+  isWsl = false
 }
 
 // Get all possible Program Files folders even on other drives
