@@ -19,6 +19,11 @@ var PREFS = [
   'user_pref("extensions.enabledScopes", 15);'
 ].join('\n')
 
+// check if firefox is installed on the wsl side and bypass if its available
+if (which.sync('firefox', { nothrow: true })) {
+  isWsl = false;
+}
+
 // Get all possible Program Files folders even on other drives
 // inspect the user's path to find other drives that may contain Program Files folders
 var getAllPrefixes = function () {
@@ -109,11 +114,6 @@ var getAllPrefixesWsl = function () {
 var getFirefoxExeWsl = function (firefoxDirName) {
   if (!isWsl) {
     return null
-  }
-
-  // check if firefox is installed on the wsl side and bypass if its available
-  if (which.sync('firefox', { nothrow: true })) {
-    return null;
   }
 
   var firefoxDirNames = Array.prototype.slice.call(arguments)
