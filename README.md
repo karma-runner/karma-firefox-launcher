@@ -34,6 +34,18 @@ karma start --browsers Firefox,Chrome
 
 To run Firefox in headless mode, append `Headless` to the version name, e.g. `FirefoxHeadless`, `FirefoxNightlyHeadless`.
 
+### Environment variables
+
+You can specify the location of the Firefox executable using the following
+environment variables:
+
+* `FIREFOX_BIN` (for browser `Firefox` or `FirefoxHeadless`)
+* `FIREFOX_DEVELOPER_BIN` (for browser `FirefoxDeveloper` or
+  `FirefoxDeveloperHeadless`)
+* `FIREFOX_AURORA_BIN` (for browser `FirefoxAurora` or `FirefoxAuroraHeadless`)
+* `FIREFOX_NIGHTLY_BIN` (for browser `FirefoxNightly` or
+  `FirefoxNightlyHeadless`)
+
 ### Custom Preferences
 To configure preferences for the Firefox instance that is loaded, you can specify a custom launcher in your Karma
 config with the preferences under the `prefs` key:
