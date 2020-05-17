@@ -3,6 +3,7 @@
 var fs = require('fs')
 var path = require('path')
 var isWsl = require('is-wsl')
+var which = require('which')
 var { execSync } = require('child_process')
 var { StringDecoder } = require('string_decoder')
 
@@ -17,6 +18,11 @@ var PREFS = [
   'user_pref("browser.tabs.remote.autostart.2", false);',
   'user_pref("extensions.enabledScopes", 15);'
 ].join('\n')
+
+// Check if Firefox is installed on the WSL side and use that if it's available
+if (isWsl && which.sync('firefox', { nothrow: true })) {
+  isWsl = false
+}
 
 // Get all possible Program Files folders even on other drives
 // inspect the user's path to find other drives that may contain Program Files folders
