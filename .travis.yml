@@ -11,8 +11,8 @@ services:
   - xvfb
 
 script:
-  - npm run lint
-  - npm test
+  - yarn lint
+  - yarn test
 
 addons:
   firefox: 'latest'
@@ -21,3 +21,8 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+
+after_success:
+  - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_EVENT_TYPE" == "push" && "$TRAVIS_NODE_VERSION" == "stable" ]]; then
+      semantic-release;
+    fi;
