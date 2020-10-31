@@ -47,6 +47,27 @@ environment variables:
 * `FIREFOX_NIGHTLY_BIN` (for browser `FirefoxNightly` or
   `FirefoxNightlyHeadless`)
 
+### Custom Firefox location
+
+In addition to Environment variables you can specify location of the Firefox executable in a custom launcher:
+
+```js
+browsers: ['Firefox68', 'Firefox78'],
+
+customLaunchers: {
+    Firefox68: {
+        base: 'Firefox',
+        name: 'Firefox68',
+        command: '<path to FF68>/firefox.exe'
+    },
+    Firefox78: {
+        base: 'Firefox',
+        name: 'Firefox78',
+        command: '<path to FF78>/firefox.exe'
+    }
+}
+```
+
 ### Custom Preferences
 To configure preferences for the Firefox instance that is loaded, you can specify a custom launcher in your Karma
 config with the preferences under the `prefs` key:

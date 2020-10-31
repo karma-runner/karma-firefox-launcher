@@ -195,7 +195,7 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
 
   this._start = function (url) {
     var self = this
-    var command = this._getCommand()
+    var command = args.command || this._getCommand()
     var profilePath = args.profile || self._tempDir
     var flags = args.flags || []
     var extensionsDir
