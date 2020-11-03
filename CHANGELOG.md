@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/karma-runner/karma-firefox-launcher/compare/v2.0.0...v2.1.0) (2020-11-03)
+
+
+### Features
+
+* provide a way to configure location of executable in customLauncher (fix [#125](https://github.com/karma-runner/karma-firefox-launcher/issues/125)) ([c53efcc](https://github.com/karma-runner/karma-firefox-launcher/commit/c53efcc5f0abf72c0213f826d2b147d01241a39c))
+
 # [2.0.0](https://github.com/karma-runner/karma-firefox-launcher/compare/v1.3.0...v2.0.0) (2020-10-20)
 
 
