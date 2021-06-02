@@ -279,7 +279,7 @@ FirefoxDeveloperBrowser.prototype = {
   name: 'FirefoxDeveloper',
   DEFAULT_CMD: {
     linux: isWsl ? getFirefoxExeWsl('Firefox Developer Edition') : 'firefox',
-    darwin: getFirefoxWithFallbackOnOSX('FirefoxDeveloperEdition', 'FirefoxAurora'),
+    darwin: getFirefoxWithFallbackOnOSX('Firefox Developer Edition', 'FirefoxDeveloperEdition', 'FirefoxAurora'),
     win32: getFirefoxExe('Firefox Developer Edition')
   },
   ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
