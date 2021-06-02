@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/karma-runner/karma-firefox-launcher/compare/v2.1.0...v2.1.1) (2021-06-02)
+
+
+### Bug Fixes
+
+* update name of Developer Edition on macOS ([a0b5e58](https://github.com/karma-runner/karma-firefox-launcher/commit/a0b5e5858a2503c54a429904b133849f90514d6d))
+
 # [2.1.0](https://github.com/karma-runner/karma-firefox-launcher/compare/v2.0.0...v2.1.0) (2020-11-03)
 
 
