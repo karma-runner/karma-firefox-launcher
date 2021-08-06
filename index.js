@@ -24,6 +24,35 @@ if (isWsl && which.sync('firefox', { nothrow: true })) {
   isWsl = false
 }
 
+/**
+ * Takes a string from Windows' tasklist.exe with the following arguments:
+ * `/FO CSV /NH /SVC` and returns an array of PIDs.
+ * @param {string} tasklist Expected to be in the form of:
+ * `'"firefox.exe","14972","Console","1","5.084 K"\r\n"firefox.exe","12204","Console","1","221.656 K"'`
+ * @returns {string[]} Array of String PIDs. Can be empty.
+ */
+ var extractPids = tasklist => tasklist
+    .split (',')
+    .filter (x => /^"\d{3,10}"$/.test (x))
+    .map (pid => pid.replace (/"/g, ''))
+
+ /**
+  * Curried function version of safeExecSync with reference to logger
+  * in a closure.
+  * @param {function} log An instance of logger.create
+  * @returns {{(command:string):string}}
+  */
+var createSafeExecSync = log => command => {
+  var output = ''
+  try {
+    output = String (execSync(command))
+  } catch (err) {
+    log.warn (String (err))
+  }
+  return output
+}
+
+
 // Get all possible Program Files folders even on other drives
 // inspect the user's path to find other drives that may contain Program Files folders
 var getAllPrefixes = function () {
@@ -177,10 +206,13 @@ var makeHeadlessVersion = function (Browser) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
-var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
+var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
   baseBrowserDecorator(this)
 
-  var browserProcessPid
+  const log = logger.create('FirefoxLauncher')
+  const safeExecSync = createSafeExecSync (log)
+  let browserProcessPid
+  let browserProcessPidWsl = []
 
   this._getPrefs = function (prefs) {
     if (typeof prefs !== 'object') {
@@ -214,8 +246,17 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
     var translatedProfilePath =
       isWsl ? execSync('wslpath -w ' + profilePath).toString().trim() : profilePath
 
+    if (isWsl) {
+      // possible level of logging: log.error || log.warn || log.info || log.debug
+      log.warn ('WSL environment detected: Please do not open Firefox while running tests as it will be killed after the test!')
+      log.warn ('WSL environment detected: See https://github.com/karma-runner/karma-firefox-launcher/issues/101#issuecomment-891850143')
+
+      browserProcessPidWsl = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+      log.debug ('Recorded PIDs not to kill: %s', browserProcessPidWsl)
+    }
+
     // If we are using the launcher process, make it print the child process ID
-    // to stderr so we can capture it.
+    // to stderr so we can capture it. Does not work in WSL.
     //
     // https://wiki.mozilla.org/Platform/Integration/InjectEject/Launcher_Process/
     process.env.MOZ_DEBUG_BROWSER_PAUSE = 0
@@ -249,6 +290,13 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
         // Ignore failure -- the browser process might have already been
         // terminated.
       }
+    } else if (isWsl) {
+      //
+      var tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+        .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
+
+      log.warn ('Killing the following PIDs: %s', tasklist)
+      log.debug (safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ')))
     }
 
     return process.nextTick(done)
@@ -267,7 +315,7 @@ FirefoxBrowser.prototype = {
   ENV_CMD: 'FIREFOX_BIN'
 }
 
-FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
 
 var FirefoxHeadlessBrowser = makeHeadlessVersion(FirefoxBrowser)
 
@@ -285,7 +333,7 @@ FirefoxDeveloperBrowser.prototype = {
   ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
 }
 
-FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
 
 var FirefoxDeveloperHeadlessBrowser = makeHeadlessVersion(FirefoxDeveloperBrowser)
 
@@ -303,7 +351,7 @@ FirefoxAuroraBrowser.prototype = {
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 }
 
-FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
 
 var FirefoxAuroraHeadlessBrowser = makeHeadlessVersion(FirefoxAuroraBrowser)
 
@@ -322,7 +370,7 @@ FirefoxNightlyBrowser.prototype = {
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 }
 
-FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
 
 var FirefoxNightlyHeadlessBrowser = makeHeadlessVersion(FirefoxNightlyBrowser)
 
