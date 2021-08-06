@@ -31,7 +31,7 @@ if (isWsl && which.sync('firefox', { nothrow: true })) {
  * `'"firefox.exe","14972","Console","1","5.084 K"\r\n"firefox.exe","12204","Console","1","221.656 K"'`
  * @returns {string[]} Array of String PIDs. Can be empty.
  */
- var extractPids = tasklist => tasklist
+ const extractPids = tasklist => tasklist
     .split (',')
     .filter (x => /^"\d{3,10}"$/.test (x))
     .map (pid => pid.replace (/"/g, ''))
@@ -42,8 +42,8 @@ if (isWsl && which.sync('firefox', { nothrow: true })) {
   * @param {function} log An instance of logger.create
   * @returns {{(command:string):string}}
   */
-var createSafeExecSync = log => command => {
-  var output = ''
+const createSafeExecSync = log => command => {
+  let output = ''
   try {
     output = String (execSync(command))
   } catch (err) {
@@ -291,8 +291,7 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
         // terminated.
       }
     } else if (isWsl) {
-      //
-      var tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+      const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
         .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
 
       log.warn ('Killing the following PIDs: %s', tasklist)
