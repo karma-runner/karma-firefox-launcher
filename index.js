@@ -289,7 +289,6 @@ var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
   if (isWsl) {
     // exit: will run for each browser when all tests has finished
     emitter.on ('exit', (done) => {
-      log.error ('browserProcessPidWsl', browserProcessPidWsl)
       const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
         .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
 
