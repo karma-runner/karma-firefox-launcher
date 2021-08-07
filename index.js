@@ -286,20 +286,23 @@ var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
     })
   }
 
-  emitter.on ('exit', (done) => {
-    if (isWsl && this.state === 'BEING_FORCE_KILLED') {
+  if (isWsl) {
+    // exit: will run for each browser when all tests has finished
+    emitter.on ('exit', (done) => {
+      log.error ('browserProcessPidWsl', browserProcessPidWsl)
       const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
         .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
 
+      // if this is not the first time 'exit' is called then tasklist is probably empty
       if (tasklist.length > 0) {
         log.debug ('Killing the following PIDs:', tasklist)
         const killResult = safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ') + ' 2>&1')
         log.debug (killResult)
       }
-    }
 
-    return process.nextTick(done)
-  })
+      return process.nextTick(done)
+    })
+  }
 
   this.on('kill', function (done) {
     // If we have a separate browser process PID, try killing it.
