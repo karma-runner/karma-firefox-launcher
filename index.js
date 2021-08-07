@@ -296,7 +296,9 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
         .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
 
       log.debug ('Killing the following PIDs:', tasklist)
-      log.debug (safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ')))
+
+      const killResult = safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' '))
+      log.debug (killResult)
     }
 
     return process.nextTick(done)
