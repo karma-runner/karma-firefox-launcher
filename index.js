@@ -19,6 +19,9 @@ var PREFS = [
   'user_pref("extensions.enabledScopes", 15);'
 ].join('\n')
 
+// NOTE: add 'config.browsers' to get which browsers are started
+const $INJECT_LIST = ['baseBrowserDecorator', 'args', 'logger', 'emitter']
+
 // Check if Firefox is installed on the WSL side and use that if it's available
 if (isWsl && which.sync('firefox', { nothrow: true })) {
   isWsl = false
@@ -47,8 +50,9 @@ const createSafeExecSync = log => command => {
   try {
     output = String (execSync(command))
   } catch (err) {
-    // Something went wrong
-    // but we can always continue
+    // Something went wrong but we can usually continue.
+    // For Windows kill.exe, one common error is trying to kill a PID
+    // that no longer exist, which is fine.
     log.debug (String (err))
   }
   return output
@@ -208,7 +212,7 @@ var makeHeadlessVersion = function (Browser) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
-var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
+var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
   baseBrowserDecorator(this)
 
   const log = logger.create(this.name + 'Launcher')
@@ -282,6 +286,21 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
     })
   }
 
+  emitter.on ('exit', (done) => {
+    if (isWsl && this.state === 'BEING_FORCE_KILLED') {
+      const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+        .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
+
+      if (tasklist.length > 0) {
+        log.debug ('Killing the following PIDs:', tasklist)
+        const killResult = safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ') + ' 2>&1')
+        log.debug (killResult)
+      }
+    }
+
+    return process.nextTick(done)
+  })
+
   this.on('kill', function (done) {
     // If we have a separate browser process PID, try killing it.
     if (browserProcessPid) {
@@ -291,14 +310,6 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
         // Ignore failure -- the browser process might have already been
         // terminated.
       }
-    } else if (isWsl) {
-      const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
-        .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
-
-      log.debug ('Killing the following PIDs:', tasklist)
-
-      const killResult = safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' '))
-      log.debug (killResult)
     }
 
     return process.nextTick(done)
@@ -317,7 +328,7 @@ FirefoxBrowser.prototype = {
   ENV_CMD: 'FIREFOX_BIN'
 }
 
-FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
+FirefoxBrowser.$inject = $INJECT_LIST
 
 var FirefoxHeadlessBrowser = makeHeadlessVersion(FirefoxBrowser)
 
@@ -335,7 +346,7 @@ FirefoxDeveloperBrowser.prototype = {
   ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
 }
 
-FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
+FirefoxDeveloperBrowser.$inject = $INJECT_LIST
 
 var FirefoxDeveloperHeadlessBrowser = makeHeadlessVersion(FirefoxDeveloperBrowser)
 
@@ -353,7 +364,7 @@ FirefoxAuroraBrowser.prototype = {
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 }
 
-FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
+FirefoxAuroraBrowser.$inject = $INJECT_LIST
 
 var FirefoxAuroraHeadlessBrowser = makeHeadlessVersion(FirefoxAuroraBrowser)
 
@@ -372,7 +383,7 @@ FirefoxNightlyBrowser.prototype = {
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 }
 
-FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args', 'logger']
+FirefoxNightlyBrowser.$inject = $INJECT_LIST
 
 var FirefoxNightlyHeadlessBrowser = makeHeadlessVersion(FirefoxNightlyBrowser)
 
