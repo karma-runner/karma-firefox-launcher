@@ -211,7 +211,7 @@ var makeHeadlessVersion = function (Browser) {
 var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
   baseBrowserDecorator(this)
 
-  const log = logger.create('FirefoxLauncher')
+  const log = logger.create(this.name + 'Launcher')
   const safeExecSync = createSafeExecSync (log)
   let browserProcessPid
   let browserProcessPidWsl = []
