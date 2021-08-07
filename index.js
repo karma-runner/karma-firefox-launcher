@@ -249,12 +249,11 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
       isWsl ? execSync('wslpath -w ' + profilePath).toString().trim() : profilePath
 
     if (isWsl) {
-      // possible level of logging: log.error || log.warn || log.info || log.debug
       log.warn ('WSL environment detected: Please do not open Firefox while running tests as it will be killed after the test!')
       log.warn ('WSL environment detected: See https://github.com/karma-runner/karma-firefox-launcher/issues/101#issuecomment-891850143')
 
       browserProcessPidWsl = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
-      log.debug ('Recorded PIDs not to kill: %s', browserProcessPidWsl)
+      log.debug ('Recorded PIDs not to kill:', browserProcessPidWsl)
     }
 
     // If we are using the launcher process, make it print the child process ID
@@ -296,7 +295,7 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args, logger) {
       const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
         .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
 
-      log.warn ('Killing the following PIDs: %s', tasklist)
+      log.debug ('Killing the following PIDs:', tasklist)
       log.debug (safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ')))
     }
 
