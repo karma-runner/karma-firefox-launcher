@@ -40,14 +40,16 @@ if (isWsl && which.sync('firefox', { nothrow: true })) {
   * Curried function version of safeExecSync with reference to logger
   * in a closure.
   * @param {function} log An instance of logger.create
-  * @returns {{(command:string):string}}
+  * @returns {{(command:string):string}} A closure with reference to logger
   */
 const createSafeExecSync = log => command => {
   let output = ''
   try {
     output = String (execSync(command))
   } catch (err) {
-    log.warn (String (err))
+    // Something went wrong
+    // but we can always continue
+    log.debug (String (err))
   }
   return output
 }
