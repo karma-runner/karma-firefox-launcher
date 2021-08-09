@@ -1,13 +1,13 @@
 'use strict'
 
-var fs = require('fs')
-var path = require('path')
-var isWsl = require('is-wsl')
-var which = require('which')
-var { execSync } = require('child_process')
-var { StringDecoder } = require('string_decoder')
+const fs = require('fs')
+const path = require('path')
+let isWsl = require('is-wsl')
+const which = require('which')
+const { execSync } = require('child_process')
+const { StringDecoder } = require('string_decoder')
 
-var PREFS = [
+const PREFS = [
   'user_pref("browser.shell.checkDefaultBrowser", false);',
   'user_pref("browser.bookmarks.restore_default_bookmarks", false);',
   'user_pref("dom.disable_open_during_load", false);',
@@ -34,12 +34,12 @@ if (isWsl && which.sync('firefox', { nothrow: true })) {
  * `'"firefox.exe","14972","Console","1","5.084 K"\r\n"firefox.exe","12204","Console","1","221.656 K"'`
  * @returns {string[]} Array of String PIDs. Can be empty.
  */
- const extractPids = tasklist => tasklist
-    .split (',')
-    .filter (x => /^"\d{3,10}"$/.test (x))
-    .map (pid => pid.replace (/"/g, ''))
+const extractPids = tasklist => tasklist
+  .split(',')
+  .filter(x => /^"\d{3,10}"$/.test(x))
+  .map(pid => pid.replace(/"/g, ''))
 
- /**
+/**
   * Curried function version of safeExecSync with reference to logger
   * in a closure.
   * @param {function} log An instance of logger.create
@@ -48,37 +48,36 @@ if (isWsl && which.sync('firefox', { nothrow: true })) {
 const createSafeExecSync = log => command => {
   let output = ''
   try {
-    output = String (execSync(command))
+    output = String(execSync(command))
   } catch (err) {
     // Something went wrong but we can usually continue.
     // For Windows kill.exe, one common error is trying to kill a PID
     // that no longer exist, which is fine.
-    log.debug (String (err))
+    log.debug(String(err))
   }
   return output
 }
 
-
 // Get all possible Program Files folders even on other drives
 // inspect the user's path to find other drives that may contain Program Files folders
-var getAllPrefixes = function () {
-  var drives = []
-  var paden = process.env.Path.split(';')
-  var re = /^[A-Z]:\\/i
-  var pad
-  for (var p = 0; p < paden.length; p++) {
+const getAllPrefixes = function () {
+  const drives = []
+  const paden = process.env.Path.split(';')
+  const re = /^[A-Z]:\\/i
+  let pad
+  for (let p = 0; p < paden.length; p++) {
     pad = paden[p]
     if (re.test(pad) && drives.indexOf(pad[0]) === -1) {
       drives.push(pad[0])
     }
   }
 
-  var result = []
-  var prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']]
-  var prefix
-  for (var i = 0; i < prefixes.length; i++) {
+  const result = []
+  const prefixes = [process.env.PROGRAMFILES, process.env['PROGRAMFILES(X86)']]
+  let prefix
+  for (let i = 0; i < prefixes.length; i++) {
     if (typeof prefixes[i] !== 'undefined') {
-      for (var d = 0; d < drives.length; d += 1) {
+      for (let d = 0; d < drives.length; d += 1) {
         prefix = drives[d] + prefixes[i].substr(1)
         if (result.indexOf(prefix) === -1) {
           result.push(prefix)
@@ -91,16 +90,16 @@ var getAllPrefixes = function () {
 
 // Return location of firefox.exe file for a given Firefox directory
 // (available: "Mozilla Firefox", "Aurora", "Nightly").
-var getFirefoxExe = function (firefoxDirName) {
+const getFirefoxExe = function (firefoxDirName) {
   if (process.platform !== 'win32' && process.platform !== 'win64') {
     return null
   }
 
-  var firefoxDirNames = Array.prototype.slice.call(arguments)
+  const firefoxDirNames = Array.prototype.slice.call(arguments)
 
-  for (var prefix of getAllPrefixes()) {
-    for (var dir of firefoxDirNames) {
-      var candidate = path.join(prefix, dir, 'firefox.exe')
+  for (const prefix of getAllPrefixes()) {
+    for (const dir of firefoxDirNames) {
+      const candidate = path.join(prefix, dir, 'firefox.exe')
       if (fs.existsSync(candidate)) {
         return candidate
       }
@@ -110,34 +109,34 @@ var getFirefoxExe = function (firefoxDirName) {
   return path.join('C:\\Program Files', firefoxDirNames[0], 'firefox.exe')
 }
 
-var getAllPrefixesWsl = function () {
-  var drives = []
+const getAllPrefixesWsl = function () {
+  const drives = []
   // Some folks configure their wsl.conf to mount Windows drives without the
   // /mnt prefix (e.g. see https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly)
   //
   // In fact, they could configure this to be any number of things. So we
   // take each path, convert it to a Windows path, check if it looks like
   // it starts with a drive and then record that.
-  var re = /^([A-Z]):\\/i
-  for (var pathElem of process.env.PATH.split(':')) {
+  const re = /^([A-Z]):\\/i
+  for (const pathElem of process.env.PATH.split(':')) {
     if (fs.existsSync(pathElem)) {
-      var windowsPath = execSync('wslpath -w "' + pathElem + '"').toString()
-      var matches = windowsPath.match(re)
+      const windowsPath = execSync('wslpath -w "' + pathElem + '"').toString()
+      const matches = windowsPath.match(re)
       if (matches !== null && drives.indexOf(matches[1]) === -1) {
         drives.push(matches[1])
       }
     }
   }
 
-  var result = []
+  const result = []
   // We don't have the PROGRAMFILES or PROGRAMFILES(X86) environment variables
   // in WSL so we just hard code them.
-  var prefixes = ['Program Files', 'Program Files (x86)']
-  for (var prefix of prefixes) {
-    for (var drive of drives) {
+  const prefixes = ['Program Files', 'Program Files (x86)']
+  for (const prefix of prefixes) {
+    for (const drive of drives) {
       // We only have the drive, and only wslpath knows exactly what they map to
       // in Linux, so we convert it back here.
-      var wslPath =
+      const wslPath =
         execSync('wslpath "' + drive + ':\\' + prefix + '"').toString().trim()
       result.push(wslPath)
     }
@@ -146,16 +145,16 @@ var getAllPrefixesWsl = function () {
   return result
 }
 
-var getFirefoxExeWsl = function (firefoxDirName) {
+const getFirefoxExeWsl = function (firefoxDirName) {
   if (!isWsl) {
     return null
   }
 
-  var firefoxDirNames = Array.prototype.slice.call(arguments)
+  const firefoxDirNames = Array.prototype.slice.call(arguments)
 
-  for (var prefix of getAllPrefixesWsl()) {
-    for (var dir of firefoxDirNames) {
-      var candidate = path.join(prefix, dir, 'firefox.exe')
+  for (const prefix of getAllPrefixesWsl()) {
+    for (const dir of firefoxDirNames) {
+      const candidate = path.join(prefix, dir, 'firefox.exe')
       if (fs.existsSync(candidate)) {
         return candidate
       }
@@ -165,18 +164,18 @@ var getFirefoxExeWsl = function (firefoxDirName) {
   return path.join('/mnt/c/Program Files/', firefoxDirNames[0], 'firefox.exe')
 }
 
-var getFirefoxWithFallbackOnOSX = function () {
+const getFirefoxWithFallbackOnOSX = function () {
   if (process.platform !== 'darwin') {
     return null
   }
 
-  var firefoxDirNames = Array.prototype.slice.call(arguments)
-  var prefix = '/Applications/'
-  var suffix = '.app/Contents/MacOS/firefox-bin'
+  const firefoxDirNames = Array.prototype.slice.call(arguments)
+  const prefix = '/Applications/'
+  const suffix = '.app/Contents/MacOS/firefox-bin'
 
-  var bin
-  var homeBin
-  for (var i = 0; i < firefoxDirNames.length; i++) {
+  let bin
+  let homeBin
+  for (let i = 0; i < firefoxDirNames.length; i++) {
     bin = prefix + firefoxDirNames[i] + suffix
 
     if ('HOME' in process.env) {
@@ -193,10 +192,10 @@ var getFirefoxWithFallbackOnOSX = function () {
   }
 }
 
-var makeHeadlessVersion = function (Browser) {
-  var HeadlessBrowser = function () {
+const makeHeadlessVersion = function (Browser) {
+  const HeadlessBrowser = function () {
     Browser.apply(this, arguments)
-    var execCommand = this._execCommand
+    const execCommand = this._execCommand
     this._execCommand = function (command, args) {
       // --start-debugger-server ws:6000 can also be used, since remote debugging protocol also speaks WebSockets
       // https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/
@@ -212,11 +211,11 @@ var makeHeadlessVersion = function (Browser) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
-var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
+const FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
   baseBrowserDecorator(this)
 
   const log = logger.create(this.name + 'Launcher')
-  const safeExecSync = createSafeExecSync (log)
+  const safeExecSync = createSafeExecSync(log)
   let browserProcessPid
   let browserProcessPidWsl = []
 
@@ -224,40 +223,40 @@ var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
     if (typeof prefs !== 'object') {
       return PREFS
     }
-    var result = PREFS
-    for (var key in prefs) {
+    let result = PREFS
+    for (const key in prefs) {
       result += 'user_pref("' + key + '", ' + JSON.stringify(prefs[key]) + ');\n'
     }
     return result
   }
 
   this._start = function (url) {
-    var self = this
-    var command = args.command || this._getCommand()
-    var profilePath = args.profile || self._tempDir
-    var flags = args.flags || []
-    var extensionsDir
+    const self = this
+    const command = args.command || this._getCommand()
+    const profilePath = args.profile || self._tempDir
+    const flags = args.flags || []
+    let extensionsDir
 
     if (Array.isArray(args.extensions)) {
       extensionsDir = path.resolve(profilePath, 'extensions')
       fs.mkdirSync(extensionsDir)
       args.extensions.forEach(function (ext) {
-        var extBuffer = fs.readFileSync(ext)
-        var copyDestination = path.resolve(extensionsDir, path.basename(ext))
+        const extBuffer = fs.readFileSync(ext)
+        const copyDestination = path.resolve(extensionsDir, path.basename(ext))
         fs.writeFileSync(copyDestination, extBuffer)
       })
     }
 
     fs.writeFileSync(path.join(profilePath, 'prefs.js'), this._getPrefs(args.prefs))
-    var translatedProfilePath =
+    const translatedProfilePath =
       isWsl ? execSync('wslpath -w ' + profilePath).toString().trim() : profilePath
 
     if (isWsl) {
-      log.warn ('WSL environment detected: Please do not open Firefox while running tests as it will be killed after the test!')
-      log.warn ('WSL environment detected: See https://github.com/karma-runner/karma-firefox-launcher/issues/101#issuecomment-891850143')
+      log.warn('WSL environment detected: Please do not open Firefox while running tests as it will be killed after the test!')
+      log.warn('WSL environment detected: See https://github.com/karma-runner/karma-firefox-launcher/issues/101#issuecomment-891850143')
 
-      browserProcessPidWsl = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
-      log.debug ('Recorded PIDs not to kill:', browserProcessPidWsl)
+      browserProcessPidWsl = extractPids(safeExecSync('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+      log.debug('Recorded PIDs not to kill:', browserProcessPidWsl)
     }
 
     // If we are using the launcher process, make it print the child process ID
@@ -272,14 +271,14 @@ var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
     )
 
     self._process.stderr.on('data', errBuff => {
-      var errString
+      let errString
       if (typeof errBuff === 'string') {
         errString = errBuff
       } else {
-        var decoder = new StringDecoder('utf8')
+        const decoder = new StringDecoder('utf8')
         errString = decoder.write(errBuff)
       }
-      var matches = errString.match(/BROWSERBROWSERBROWSERBROWSER\s+debug me @ (\d+)/)
+      const matches = errString.match(/BROWSERBROWSERBROWSERBROWSER\s+debug me @ (\d+)/)
       if (matches) {
         browserProcessPid = parseInt(matches[1], 10)
       }
@@ -288,15 +287,15 @@ var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
 
   if (isWsl) {
     // exit: will run for each browser when all tests has finished
-    emitter.on ('exit', (done) => {
-      const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+    emitter.on('exit', (done) => {
+      const tasklist = extractPids(safeExecSync('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
         .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
 
       // if this is not the first time 'exit' is called then tasklist is probably empty
       if (tasklist.length > 0) {
-        log.debug ('Killing the following PIDs:', tasklist)
-        const killResult = safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ') + ' 2>&1')
-        log.debug (killResult)
+        log.debug('Killing the following PIDs:', tasklist)
+        const killResult = safeExecSync('taskkill.exe /F ' + tasklist.map(pid => `/PID ${pid}`).join(' ') + ' 2>&1')
+        log.debug(killResult)
       }
 
       return process.nextTick(done)
@@ -332,9 +331,9 @@ FirefoxBrowser.prototype = {
 
 FirefoxBrowser.$inject = $INJECT_LIST
 
-var FirefoxHeadlessBrowser = makeHeadlessVersion(FirefoxBrowser)
+const FirefoxHeadlessBrowser = makeHeadlessVersion(FirefoxBrowser)
 
-var FirefoxDeveloperBrowser = function () {
+const FirefoxDeveloperBrowser = function () {
   FirefoxBrowser.apply(this, arguments)
 }
 
@@ -350,9 +349,9 @@ FirefoxDeveloperBrowser.prototype = {
 
 FirefoxDeveloperBrowser.$inject = $INJECT_LIST
 
-var FirefoxDeveloperHeadlessBrowser = makeHeadlessVersion(FirefoxDeveloperBrowser)
+const FirefoxDeveloperHeadlessBrowser = makeHeadlessVersion(FirefoxDeveloperBrowser)
 
-var FirefoxAuroraBrowser = function () {
+const FirefoxAuroraBrowser = function () {
   FirefoxBrowser.apply(this, arguments)
 }
 
@@ -368,9 +367,9 @@ FirefoxAuroraBrowser.prototype = {
 
 FirefoxAuroraBrowser.$inject = $INJECT_LIST
 
-var FirefoxAuroraHeadlessBrowser = makeHeadlessVersion(FirefoxAuroraBrowser)
+const FirefoxAuroraHeadlessBrowser = makeHeadlessVersion(FirefoxAuroraBrowser)
 
-var FirefoxNightlyBrowser = function () {
+const FirefoxNightlyBrowser = function () {
   FirefoxBrowser.apply(this, arguments)
 }
 
@@ -387,7 +386,7 @@ FirefoxNightlyBrowser.prototype = {
 
 FirefoxNightlyBrowser.$inject = $INJECT_LIST
 
-var FirefoxNightlyHeadlessBrowser = makeHeadlessVersion(FirefoxNightlyBrowser)
+const FirefoxNightlyHeadlessBrowser = makeHeadlessVersion(FirefoxNightlyBrowser)
 
 // PUBLISH DI MODULE
 module.exports = {
