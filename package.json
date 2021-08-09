@@ -29,7 +29,7 @@
     "husky": "^4.3.0",
     "karma": "^4.2.0",
     "karma-mocha": "^2.0.1",
-    "mocha": "^6.2.0",
+    "mocha": "^9.0.3",
     "semantic-release": "^17.2.1",
     "standard": "^16.0.3"
   },
