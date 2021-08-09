@@ -19,10 +19,45 @@ var PREFS = [
   'user_pref("extensions.enabledScopes", 15);'
 ].join('\n')
 
+// NOTE: add 'config.browsers' to get which browsers are started
+const $INJECT_LIST = ['baseBrowserDecorator', 'args', 'logger', 'emitter']
+
 // Check if Firefox is installed on the WSL side and use that if it's available
 if (isWsl && which.sync('firefox', { nothrow: true })) {
   isWsl = false
 }
+
+/**
+ * Takes a string from Windows' tasklist.exe with the following arguments:
+ * `/FO CSV /NH /SVC` and returns an array of PIDs.
+ * @param {string} tasklist Expected to be in the form of:
+ * `'"firefox.exe","14972","Console","1","5.084 K"\r\n"firefox.exe","12204","Console","1","221.656 K"'`
+ * @returns {string[]} Array of String PIDs. Can be empty.
+ */
+ const extractPids = tasklist => tasklist
+    .split (',')
+    .filter (x => /^"\d{3,10}"$/.test (x))
+    .map (pid => pid.replace (/"/g, ''))
+
+ /**
+  * Curried function version of safeExecSync with reference to logger
+  * in a closure.
+  * @param {function} log An instance of logger.create
+  * @returns {{(command:string):string}} A closure with reference to logger
+  */
+const createSafeExecSync = log => command => {
+  let output = ''
+  try {
+    output = String (execSync(command))
+  } catch (err) {
+    // Something went wrong but we can usually continue.
+    // For Windows kill.exe, one common error is trying to kill a PID
+    // that no longer exist, which is fine.
+    log.debug (String (err))
+  }
+  return output
+}
+
 
 // Get all possible Program Files folders even on other drives
 // inspect the user's path to find other drives that may contain Program Files folders
@@ -177,10 +212,13 @@ var makeHeadlessVersion = function (Browser) {
 }
 
 // https://developer.mozilla.org/en-US/docs/Command_Line_Options
-var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
+var FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
   baseBrowserDecorator(this)
 
-  var browserProcessPid
+  const log = logger.create(this.name + 'Launcher')
+  const safeExecSync = createSafeExecSync (log)
+  let browserProcessPid
+  let browserProcessPidWsl = []
 
   this._getPrefs = function (prefs) {
     if (typeof prefs !== 'object') {
@@ -214,8 +252,16 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
     var translatedProfilePath =
       isWsl ? execSync('wslpath -w ' + profilePath).toString().trim() : profilePath
 
+    if (isWsl) {
+      log.warn ('WSL environment detected: Please do not open Firefox while running tests as it will be killed after the test!')
+      log.warn ('WSL environment detected: See https://github.com/karma-runner/karma-firefox-launcher/issues/101#issuecomment-891850143')
+
+      browserProcessPidWsl = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+      log.debug ('Recorded PIDs not to kill:', browserProcessPidWsl)
+    }
+
     // If we are using the launcher process, make it print the child process ID
-    // to stderr so we can capture it.
+    // to stderr so we can capture it. Does not work in WSL.
     //
     // https://wiki.mozilla.org/Platform/Integration/InjectEject/Launcher_Process/
     process.env.MOZ_DEBUG_BROWSER_PAUSE = 0
@@ -237,6 +283,23 @@ var FirefoxBrowser = function (id, baseBrowserDecorator, args) {
       if (matches) {
         browserProcessPid = parseInt(matches[1], 10)
       }
+    })
+  }
+
+  if (isWsl) {
+    // exit: will run for each browser when all tests has finished
+    emitter.on ('exit', (done) => {
+      const tasklist = extractPids (safeExecSync ('tasklist.exe /FI "IMAGENAME eq firefox.exe" /FO CSV /NH /SVC'))
+        .filter(pid => browserProcessPidWsl.indexOf(pid) === -1)
+
+      // if this is not the first time 'exit' is called then tasklist is probably empty
+      if (tasklist.length > 0) {
+        log.debug ('Killing the following PIDs:', tasklist)
+        const killResult = safeExecSync ('taskkill.exe /F ' + tasklist.map (pid => `/PID ${pid}`).join (' ') + ' 2>&1')
+        log.debug (killResult)
+      }
+
+      return process.nextTick(done)
     })
   }
 
@@ -267,7 +330,7 @@ FirefoxBrowser.prototype = {
   ENV_CMD: 'FIREFOX_BIN'
 }
 
-FirefoxBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxBrowser.$inject = $INJECT_LIST
 
 var FirefoxHeadlessBrowser = makeHeadlessVersion(FirefoxBrowser)
 
@@ -285,7 +348,7 @@ FirefoxDeveloperBrowser.prototype = {
   ENV_CMD: 'FIREFOX_DEVELOPER_BIN'
 }
 
-FirefoxDeveloperBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxDeveloperBrowser.$inject = $INJECT_LIST
 
 var FirefoxDeveloperHeadlessBrowser = makeHeadlessVersion(FirefoxDeveloperBrowser)
 
@@ -303,7 +366,7 @@ FirefoxAuroraBrowser.prototype = {
   ENV_CMD: 'FIREFOX_AURORA_BIN'
 }
 
-FirefoxAuroraBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxAuroraBrowser.$inject = $INJECT_LIST
 
 var FirefoxAuroraHeadlessBrowser = makeHeadlessVersion(FirefoxAuroraBrowser)
 
@@ -322,7 +385,7 @@ FirefoxNightlyBrowser.prototype = {
   ENV_CMD: 'FIREFOX_NIGHTLY_BIN'
 }
 
-FirefoxNightlyBrowser.$inject = ['id', 'baseBrowserDecorator', 'args']
+FirefoxNightlyBrowser.$inject = $INJECT_LIST
 
 var FirefoxNightlyHeadlessBrowser = makeHeadlessVersion(FirefoxNightlyBrowser)
 
