@@ -5,5 +5,13 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "10:00"
+      time: "11:00"
+      timezone: "Asia/Tokyo"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
       timezone: "Asia/Tokyo"
