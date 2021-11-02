@@ -1,3 +1,10 @@
+## [2.1.2](https://github.com/karma-runner/karma-firefox-launcher/compare/v2.1.1...v2.1.2) (2021-11-02)
+
+
+### Bug Fixes
+
+* launcher does not kill firefox.exe on WSL ([3954ad4](https://github.com/karma-runner/karma-firefox-launcher/commit/3954ad4a23bbc1b5886d33c2c9bf39161a9c5f3c)), closes [/github.com/karma-runner/karma-firefox-launcher/issues/101#issuecomment-891850143](https://github.com//github.com/karma-runner/karma-firefox-launcher/issues/101/issues/issuecomment-891850143)
+
 ## [2.1.1](https://github.com/karma-runner/karma-firefox-launcher/compare/v2.1.0...v2.1.1) (2021-06-02)
 
 
