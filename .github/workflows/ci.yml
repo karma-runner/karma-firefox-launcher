@@ -1,5 +1,13 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    branches-ignore:
+      - master
+  pull_request:
+    branches:
+      - master
+
 env:
   CI: true
   DISPLAY: :99.0
@@ -11,7 +19,7 @@ jobs:
       matrix:
         node: ["14", "16"]
 
-    name: Run tests on Node ${{ matrix.node }}
+    name: "Node ${{ matrix.node }} on Linux: Lint and Test"
 
     steps:
       - uses: actions/checkout@v2
@@ -39,10 +47,10 @@ jobs:
           firefox --version
 
       - name: Install
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Lint
         run: yarn lint
 
-      - name: Run tests
+      - name: Test
         run: yarn test
