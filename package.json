@@ -25,7 +25,7 @@
   "author": "Vojta Jina <vojta.jina@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "@commitlint/cli": "^14.1.0",
+    "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^14.1.0",
     "@semantic-release/changelog": "^6.0.0",
     "@semantic-release/git": "^10.0.0",
