@@ -29,7 +29,7 @@
     "@commitlint/config-conventional": "^16.0.0",
     "@semantic-release/changelog": "^6.0.0",
     "@semantic-release/git": "^10.0.0",
-    "@semantic-release/npm": "^8.0.0",
+    "@semantic-release/npm": "^9.0.0",
     "husky": "^7.0.1",
     "karma": "^6.3.4",
     "karma-mocha": "^2.0.1",
