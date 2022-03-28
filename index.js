@@ -78,7 +78,7 @@ const getAllPrefixes = function () {
   for (let i = 0; i < prefixes.length; i++) {
     if (typeof prefixes[i] !== 'undefined') {
       for (let d = 0; d < drives.length; d += 1) {
-        prefix = drives[d] + prefixes[i].substr(1)
+        prefix = drives[d] + prefixes[i].slice(1)
         if (result.indexOf(prefix) === -1) {
           result.push(prefix)
         }
