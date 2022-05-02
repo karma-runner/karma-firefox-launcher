@@ -24,9 +24,6 @@
   ],
   "author": "Vojta Jina <vojta.jina@gmail.com>",
   "license": "MIT",
-  "engines": {
-    "node": ">= 14.0.0"
-  },
   "devDependencies": {
     "@commitlint/cli": "^16.0.0",
     "@commitlint/config-conventional": "^16.0.0",
