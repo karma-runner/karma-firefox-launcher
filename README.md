@@ -72,8 +72,10 @@ customLaunchers: {
 ```
 
 ### Custom Preferences
-To configure preferences for the Firefox instance that is loaded, you can specify a custom launcher in your Karma
-config with the preferences under the `prefs` key:
+
+To configure preferences for the Firefox instance that is loaded, you can
+specify a custom launcher in your Karma config with the preferences under the
+`prefs` key:
 
 ```js
 browsers: ['FirefoxAutoAllowGUM'],
@@ -89,8 +91,9 @@ customLaunchers: {
 ```
 
 ### Loading Firefox Extensions
-If you have extensions that you want loaded into the browser on startup, you can specify the full path to each
-extension in the `extensions` key:
+
+If you have extensions that you want loaded into the browser on startup, you can
+specify the full path to each extension in the `extensions` key:
 
 ```js
 browsers: ['FirefoxWithMyExtension'],
@@ -105,9 +108,12 @@ customLaunchers: {
     }
 }
 ```
-### Starting a specific FF profile by its name
 
-When adding "customProfile" to the "customLauncher" Firefox will launch said profile. The profiles list is shown when you execute "firefox.exe -p". 
+### Starting a specific Firefox profile by its name
+
+Use the `customProfile` key to specify an existing profile to use.
+The available profiles is shown when you execute `firefox.exe -P`.
+
 Example:
 
 ```js
@@ -115,11 +121,11 @@ browsers: ['FirefoxWithMyExtension'],
 
 customLaunchers: {
   FirefoxWithMyExtension: {
-	base: 'Firefox',
-	customProfile: 'Karma',
-	extensions: [
-	  path.resolve(__dirname, '../my@extention.com.xpi'),
-	]
+    base: 'Firefox',
+    customProfile: 'Karma',
+    extensions: [
+      path.resolve(__dirname, '../my@extension.com.xpi'),
+    ]
   }
 }
 ```

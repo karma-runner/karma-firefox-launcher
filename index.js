@@ -268,7 +268,13 @@ const FirefoxBrowser = function (baseBrowserDecorator, args, logger, emitter) {
     browserProcessPid = undefined
     self._execCommand(
       command,
-      [url, customProfile ? `-p ${customProfile}` : `-profile ${translatedProfilePath}`, '-no-remote', '-wait-for-browser'].concat(flags)
+      [url,
+        [
+          ...(customProfile
+              ? ['-P', customProfile]
+              : ['-profile', translatedProfilePath])
+        ], '-no-remote',
+        '-wait-for-browser'].concat(flags)
     )
 
     self._process.stderr.on('data', errBuff => {
