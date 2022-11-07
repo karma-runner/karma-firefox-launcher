@@ -64,6 +64,6 @@
   ],
   "dependencies": {
     "is-wsl": "^2.2.0",
-    "which": "^2.0.1"
+    "which": "^3.0.0"
   }
 }
