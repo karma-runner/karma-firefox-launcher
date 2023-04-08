@@ -132,4 +132,4 @@ Then you should name your extension `myCustomExt@suchandsuch.xpi`.
 For more information on Karma see the [homepage].
 
 
-[homepage]: http://karma-runner.github.com
+[homepage]: http://karma-runner.github.io
