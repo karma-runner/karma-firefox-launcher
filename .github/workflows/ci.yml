@@ -22,7 +22,7 @@ jobs:
     name: "Node ${{ matrix.node }} on Linux: Lint and Test"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup node
         uses: actions/setup-node@v2.4.1
