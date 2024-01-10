@@ -171,7 +171,7 @@ const getFirefoxWithFallbackOnOSX = function () {
 
   const firefoxDirNames = Array.prototype.slice.call(arguments)
   const prefix = '/Applications/'
-  const suffix = '.app/Contents/MacOS/firefox-bin'
+  const suffix = '.app/Contents/MacOS/firefox'
 
   let bin
   let homeBin
