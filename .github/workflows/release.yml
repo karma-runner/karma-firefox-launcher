@@ -14,10 +14,10 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.KARMARUNNERBOT_GITHUB_TOKEN }}
       HUSKY: 0
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           token: ${{ env.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v6
         with:
           node-version: 14
           cache: yarn
